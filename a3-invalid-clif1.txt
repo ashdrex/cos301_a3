@@ -1,0 +1,4 @@
+('FuncA' 'a' 100 25 'more;and;more' 'and') 
+(and ('isTrue?' 'C'))
+(if ('CORRECT' 100 '=50+50') (and (and ('CORRECT' 'everything' 0))))
+(iff (and 'B_100' 'B_101') ('{order1}' '[1234]') ('MORE' '1001&Stuff')) 

@@ -1,0 +1,5 @@
+(or (not ('TODAY=03/26/22')) (not ('TODAY=03/26/22')) (and 'FIRDAY' 13))
+(and (0))
+(and (0 1 2 3 4 'more;'))
+(if (not 'True') (and (0 '=' 1) (0 '=' 2) (not 'FalseStatement3')))
+(100 ('and' (1000) (1001) ('1001+')))

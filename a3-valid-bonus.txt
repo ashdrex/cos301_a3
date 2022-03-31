@@ -1,0 +1,4 @@
+(cl:comment 'My comment is \'THIS\'' (and ('TODAY')))
+(100 (and ('"something')))
+(100 (and ('"something')))
+(iff (and (3) ('+') (5)) (cl:comment 'Here comes the comment:"3+5" ' ('True')))
