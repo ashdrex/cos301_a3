@@ -22,7 +22,7 @@ class ClifLexer():
 
 	tokens += reserved_bool.values()
 
-	t_ignore = ' \s'
+	t_ignore = ' \t\r\n\f\v' # code as written in this file did not have beginning whitespace; added whitespace based on Brightspace announcement
 
 	def t_NEWLINE(self,t):
 		r'\n+'

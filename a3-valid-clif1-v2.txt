@@ -1,0 +1,7 @@
+('FuncA' 'a' 100 25) 
+(and (('B' 'C') (or ('C' 'D'))) (or ('FuncB') ('Func' 100 'A') ('something')))
+('cl:comment' 'B100%')
+(cl:comment 'COMMENT:B100%')
+(iff (and ('B_100' 'B_101' '$100')) ('[TODAY]' '[4,5,6]' '[3+4]')) 
+
+
