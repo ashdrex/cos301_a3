@@ -141,7 +141,7 @@ parser.parse(s)
 
 # the following is currently not working but should be accepted because ? is in the set char
 parser = ClifParser()
-s = "('who' ('is' '?') )"
+s = "('who' 'is' '?')" # there was a space between the last ' and )
 print('\nLexing '+s)
 parser.lexer.lex(s)
 print('\nParsing '+s)

@@ -73,6 +73,6 @@ print('\nLexing '+s)
 lex.lex(s)
 
 # the following is currently not working but should be accepted because ? is in the set char
-s = "('who' ('is' '?') )"
+s = "('who' 'is' '?')" # there was a space between the last ' and )
 print('\nLexing '+s)
 lex.lex(s)
