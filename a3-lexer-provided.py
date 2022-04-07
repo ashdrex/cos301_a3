@@ -1,3 +1,4 @@
+import sys
 import ply.lex as lex
 from ply.lex import TOKEN
 
@@ -71,7 +72,6 @@ class ClifLexer():
 
 	def t_RESERVEDELEMENT(self, t):
 		r'[a-zA-Z]+(?::[a-zA-Z]+)*'
-		print(t.value)
 		if t.value in self.reserved_bool:
 			t.type = self.reserved_bool[t.value]
 			# print("Boolean reserved word: " + t.value)
@@ -110,26 +110,33 @@ class ClifLexer():
 			print(tok)
 
 
-lex = ClifLexer()
-s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-print('Lexing '+s)
-lex.lex(s)
+# lex = ClifLexer()
+# s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+# print('Lexing '+s)
+# lex.lex(s)
 
-s = "(and ('B' 'C') (or ('C' 'D'))))"
-print('\nLexing '+s)
-lex.lex(s)
+# s = "(and ('B' 'C') (or ('C' 'D'))))"
+# print('\nLexing '+s)
+# lex.lex(s)
 
-# the following is currently not working but should be accepted because ? is in the set char
-s = "('who' 'is' '?')" # there was a space between the last ' and )
-print('\nLexing '+s)
-lex.lex(s)
+# # the following is currently not working but should be accepted because ? is in the set char
+# s = "('who' 'is' '?')" # there was a space between the last ' and )
+# print('\nLexing '+s)
+# lex.lex(s)
 
-# remove later - just to test as u go along
+# # remove later - just to test as u go along
 
-s = "(56e\"7&^%\'swag\'b\')"
-print('\nLexing '+s)
-lex.lex(s)
+# s = "(56et\"7&^%\'swag\'b\')"
+# print('\nLexing '+s)
+# lex.lex(s)
 
-s = "(and (or (iff (if (not (cl:comment))))))"
-print('\nLexing '+s)
-lex.lex(s)
+def main(file, lexer_parser = True):
+	lex = ClifLexer()
+
+	with open(file, 'r') as clif_file:
+		lines = clif_file.readlines()
+		for line in lines:
+			print('\nLexing ' + line)
+			lex.lex(line)	
+
+main(sys.argv[1])	# TODO: modify this and main() to include the boolean arg
