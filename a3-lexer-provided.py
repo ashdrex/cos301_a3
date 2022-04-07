@@ -16,7 +16,11 @@ class ClifLexer():
 
 	reserved_bool = {
 		'and': 'AND',
-		'or': 'OR'
+		'or': 'OR',
+		'iff': 'IFF',
+		'if': 'IF',
+		'not': 'NOT',
+		#'cl:comment': 'CL:COMMENT' # 'bad token name'
 	}
 
 	tokens = [
@@ -35,7 +39,11 @@ class ClifLexer():
 
 	digit = r'([0-9])'
 	numeral = r'(' + digit + r')+'
-	character = r'(' + digit + r'|[^0-9\)\()])' # gross - currently necessary because t_CHAR (a function) has higher priority than t_OPEN and t_CLOSE
+	character = r'(' + digit + r'|[^0-9\)\(\'\"])' # gross - currently necessary because t_CHAR has higher priority than other rules
+
+	stringquote = r'\''
+	namequote = r'\"'
+	quotedstring = stringquote + r'(' + character + r'|' + namequote + r')*' + stringquote
 
 	def t_NEWLINE(self,t):
 		r'\n+'
@@ -53,6 +61,7 @@ class ClifLexer():
 	# token specification as a regular expression
 
 	# the digit token is recognized, but... numbers will always get tagged as numerals because they're one or more digits
+	# should numerals be two or more digits?
 	t_DIGIT= r'([0-9])'
 	#t_NUMERAL=
 
@@ -70,9 +79,10 @@ class ClifLexer():
 		else:
 			pass'''
 
+	@TOKEN(quotedstring)
 	def t_QUOTEDSTRING(self, t):
 		# This is not yet correct: you need to complete the lexing of quotedstring
-		r'\''
+		#r'\''
 		return t
 
 	@TOKEN(numeral)
@@ -108,6 +118,6 @@ lex.lex(s)
 
 # remove later - just to test as u go along
 
-s = "(56e7)"
+s = "(56e7&^%\'swag\')"
 print('\nLexing '+s)
 lex.lex(s)
