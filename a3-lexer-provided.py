@@ -1,4 +1,5 @@
 import ply.lex as lex
+from ply.lex import TOKEN
 
 class ClifLexer():
 
@@ -13,16 +14,40 @@ class ClifLexer():
 	def __del__(self):
 		print('Lexer destructor called.')
 
-	reserved_bool = {
-		'and': 'AND',
-		'or': 'OR'
+	reserved_bool = {	# consider renaming to match content
+		'and' : 'AND',
+		'or' : 'OR',
+		'iff' : 'IFF',
+		'if' : 'IF',
+		'not' : 'NOT',
+		'cl:comment' : 'CL_COMMENT'
 	}
 
-	tokens = ['OPEN', 'CLOSE', 'QUOTEDSTRING', 'RESERVEDELEMENT']
+	tokens = [
+		'OPEN', 
+		'CLOSE', 
+		'CHAR',
+		'DIGIT',
+		'NUMERAL',
+		'STRINGQUOTE',
+		'NAMEQUOTE',
+		'QUOTEDSTRING', 
+		'RESERVEDELEMENT'
+	]
 
 	tokens += reserved_bool.values()
 
 	t_ignore = ' \t\r\n\f\v' # code as written in this file did not have beginning whitespace; added whitespace based on Brightspace announcement
+
+	# regular expressions used to build decorators for function tokens
+
+	digit = r'([0-9])'
+	numeral = r'(' + digit + r')+'
+	character = r'(' + digit + r'|[^0-9\)\(\'\"])' # gross - currently necessary because t_CHAR has higher priority than other rules
+
+	stringquote = r'\''
+	namequote = r'\"'
+	quotedstring = stringquote + r'(' + character + r'|' + namequote + r')*' + stringquote
 
 	def t_NEWLINE(self,t):
 		r'\n+'
@@ -37,21 +62,43 @@ class ClifLexer():
 	t_OPEN= '\('
 	t_CLOSE= '\)'
 
+	# token specification as a regular expression
+
+	# the digit token is recognized, but... numbers will always get tagged as numerals because they're one or more digits
+	# should numerals be two or more digits?
+	t_DIGIT= r'([0-9])'
+	#t_NUMERAL=
+
 	def t_RESERVEDELEMENT(self, t):
-		# here we use a regular expression to say what matches this particular token:
-		# any sequence of standard characters of length 1 or greater
-		# but this does not yet cover all reservedelements
-		r'\w+'
+		r'[a-zA-Z]+(?::[a-zA-Z]+)*'
+		print(t.value)
 		if t.value in self.reserved_bool:
 			t.type = self.reserved_bool[t.value]
-			#print("Boolean reserved word: " + t.value)
+			# print("Boolean reserved word: " + t.value)
 			return t
 		else:
 			pass
 
+	@TOKEN(quotedstring)
 	def t_QUOTEDSTRING(self, t):
 		# This is not yet correct: you need to complete the lexing of quotedstring
-		r'\''
+		#r'\''
+		return t
+
+	@TOKEN(numeral)
+	def t_NUMERAL(self, t):
+		return t
+
+	@TOKEN(character)
+	def t_CHAR(self, t):
+		return t
+
+	@TOKEN(stringquote)
+	def t_STRINGQUOTE(self, t):
+		return t
+
+	@TOKEN(namequote)
+	def t_NAMEQUOTE(self, t):
 		return t
 
 	def lex(self, input_string):
@@ -74,5 +121,15 @@ lex.lex(s)
 
 # the following is currently not working but should be accepted because ? is in the set char
 s = "('who' 'is' '?')" # there was a space between the last ' and )
+print('\nLexing '+s)
+lex.lex(s)
+
+# remove later - just to test as u go along
+
+s = "(56e\"7&^%\'swag\'b\')"
+print('\nLexing '+s)
+lex.lex(s)
+
+s = "(and (or (iff (if (not (cl:comment))))))"
 print('\nLexing '+s)
 lex.lex(s)
