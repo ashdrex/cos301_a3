@@ -2,6 +2,7 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
+    AND
     CHAR
     CL_COMMENT
     DIGIT
@@ -15,74 +16,185 @@ Unused terminals:
 
 Grammar
 
-Rule 0     S' -> interpretedname
-Rule 1     interpretedname -> NUMERAL
-Rule 2     interpretedname -> QUOTEDSTRING
-Rule 3     predicate -> interpretedname
-Rule 4     termseq -> interpretedname
-Rule 5     termseq -> interpretedname termseq
-Rule 6     atomsent -> OPEN predicate termseq CLOSE
-Rule 7     starter -> sentence
-Rule 8     starter -> sentence starter
-Rule 9     sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
+Rule 0     S' -> starter
+Rule 1     starter -> sentence
+Rule 2     starter -> sentence starter
+Rule 3     sentence -> atomsent
+Rule 4     atomsent -> OPEN predicate termseq CLOSE
+Rule 5     predicate -> interpretedname
+Rule 6     termseq -> interpretedname
+Rule 7     termseq -> interpretedname termseq
+Rule 8     interpretedname -> NUMERAL
+Rule 9     interpretedname -> QUOTEDSTRING
 
 Terminals, with rules where they appear
 
-AND                  : 9
+AND                  : 
 CHAR                 : 
-CLOSE                : 6 9
+CLOSE                : 4
 CL_COMMENT           : 
 DIGIT                : 
 IF                   : 
 IFF                  : 
 NAMEQUOTE            : 
 NOT                  : 
-NUMERAL              : 1
-OPEN                 : 6 9
+NUMERAL              : 8
+OPEN                 : 4
 OR                   : 
-QUOTEDSTRING         : 2 9 9
+QUOTEDSTRING         : 9
 RESERVEDELEMENT      : 
 STRINGQUOTE          : 
 error                : 
 
 Nonterminals, with rules where they appear
 
-atomsent             : 
-interpretedname      : 3 4 5 0
-predicate            : 6
-sentence             : 7 8
-starter              : 8
-termseq              : 5 6
+atomsent             : 3
+interpretedname      : 5 6 7
+predicate            : 4
+sentence             : 1 2
+starter              : 2 0
+termseq              : 4 7
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . interpretedname
-    (1) interpretedname -> . NUMERAL
-    (2) interpretedname -> . QUOTEDSTRING
+    (0) S' -> . starter
+    (1) starter -> . sentence
+    (2) starter -> . sentence starter
+    (3) sentence -> . atomsent
+    (4) atomsent -> . OPEN predicate termseq CLOSE
 
-    NUMERAL         shift and go to state 2
-    QUOTEDSTRING    shift and go to state 3
+    OPEN            shift and go to state 4
 
-    interpretedname                shift and go to state 1
+    starter                        shift and go to state 1
+    sentence                       shift and go to state 2
+    atomsent                       shift and go to state 3
 
 state 1
 
-    (0) S' -> interpretedname .
+    (0) S' -> starter .
 
 
 
 state 2
 
-    (1) interpretedname -> NUMERAL .
+    (1) starter -> sentence .
+    (2) starter -> sentence . starter
+    (1) starter -> . sentence
+    (2) starter -> . sentence starter
+    (3) sentence -> . atomsent
+    (4) atomsent -> . OPEN predicate termseq CLOSE
 
-    $end            reduce using rule 1 (interpretedname -> NUMERAL .)
+    $end            reduce using rule 1 (starter -> sentence .)
+    OPEN            shift and go to state 4
 
+    sentence                       shift and go to state 2
+    starter                        shift and go to state 5
+    atomsent                       shift and go to state 3
 
 state 3
 
-    (2) interpretedname -> QUOTEDSTRING .
+    (3) sentence -> atomsent .
 
-    $end            reduce using rule 2 (interpretedname -> QUOTEDSTRING .)
+    OPEN            reduce using rule 3 (sentence -> atomsent .)
+    $end            reduce using rule 3 (sentence -> atomsent .)
+
+
+state 4
+
+    (4) atomsent -> OPEN . predicate termseq CLOSE
+    (5) predicate -> . interpretedname
+    (8) interpretedname -> . NUMERAL
+    (9) interpretedname -> . QUOTEDSTRING
+
+    NUMERAL         shift and go to state 8
+    QUOTEDSTRING    shift and go to state 9
+
+    predicate                      shift and go to state 6
+    interpretedname                shift and go to state 7
+
+state 5
+
+    (2) starter -> sentence starter .
+
+    $end            reduce using rule 2 (starter -> sentence starter .)
+
+
+state 6
+
+    (4) atomsent -> OPEN predicate . termseq CLOSE
+    (6) termseq -> . interpretedname
+    (7) termseq -> . interpretedname termseq
+    (8) interpretedname -> . NUMERAL
+    (9) interpretedname -> . QUOTEDSTRING
+
+    NUMERAL         shift and go to state 8
+    QUOTEDSTRING    shift and go to state 9
+
+    termseq                        shift and go to state 10
+    interpretedname                shift and go to state 11
+
+state 7
+
+    (5) predicate -> interpretedname .
+
+    NUMERAL         reduce using rule 5 (predicate -> interpretedname .)
+    QUOTEDSTRING    reduce using rule 5 (predicate -> interpretedname .)
+
+
+state 8
+
+    (8) interpretedname -> NUMERAL .
+
+    NUMERAL         reduce using rule 8 (interpretedname -> NUMERAL .)
+    QUOTEDSTRING    reduce using rule 8 (interpretedname -> NUMERAL .)
+    CLOSE           reduce using rule 8 (interpretedname -> NUMERAL .)
+
+
+state 9
+
+    (9) interpretedname -> QUOTEDSTRING .
+
+    NUMERAL         reduce using rule 9 (interpretedname -> QUOTEDSTRING .)
+    QUOTEDSTRING    reduce using rule 9 (interpretedname -> QUOTEDSTRING .)
+    CLOSE           reduce using rule 9 (interpretedname -> QUOTEDSTRING .)
+
+
+state 10
+
+    (4) atomsent -> OPEN predicate termseq . CLOSE
+
+    CLOSE           shift and go to state 12
+
+
+state 11
+
+    (6) termseq -> interpretedname .
+    (7) termseq -> interpretedname . termseq
+    (6) termseq -> . interpretedname
+    (7) termseq -> . interpretedname termseq
+    (8) interpretedname -> . NUMERAL
+    (9) interpretedname -> . QUOTEDSTRING
+
+    CLOSE           reduce using rule 6 (termseq -> interpretedname .)
+    NUMERAL         shift and go to state 8
+    QUOTEDSTRING    shift and go to state 9
+
+    interpretedname                shift and go to state 11
+    termseq                        shift and go to state 13
+
+state 12
+
+    (4) atomsent -> OPEN predicate termseq CLOSE .
+
+    OPEN            reduce using rule 4 (atomsent -> OPEN predicate termseq CLOSE .)
+    $end            reduce using rule 4 (atomsent -> OPEN predicate termseq CLOSE .)
+
+
+state 13
+
+    (7) termseq -> interpretedname termseq .
+
+    CLOSE           reduce using rule 7 (termseq -> interpretedname termseq .)
 

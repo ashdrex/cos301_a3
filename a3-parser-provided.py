@@ -123,11 +123,33 @@ class ClifParser(object):
 		self.lexer = ClifLexer()
 		self.parser = yacc.yacc(module=self)
 
-	def p_interpretedname(self, p): #neither of these are actually terminals... hmm
+	def p_starter(self, p):
 		"""
-		interpretedname : NUMERAL
-						| QUOTEDSTRING
+		starter : sentence
+				| sentence starter
 		"""
+		print("Starting the parsing process.")
+		pass
+
+	def p_sentence(self, p): # TODO add boolsent once it's defined
+		"""
+		sentence : atomsent
+		"""
+		# **rm note that the rule above is INCORRECT: it is just an example of how to specify a rule
+		#'sentence : OPEN QUOTEDSTRING CLOSE'
+		print("???")
+		print("Found a sentence: {} {} {} ".format(p[2], p[3], p[4]))
+		if p[3] == p[4]:
+			no_quotedstrings = 1
+		else:
+			no_quotedstrings = 2
+
+		print("Number of distinct quoted strings: " + str(no_quotedstrings))
+
+	def p_atomsent(self, p):
+		'''
+		atomsent : OPEN predicate termseq CLOSE
+		'''
 		pass
 
 	def p_predicate(self, p):
@@ -143,34 +165,18 @@ class ClifParser(object):
 		'''
 		pass
 
-	def p_atomsent(self, p):
-		'''
-		atomsent : OPEN predicate termseq CLOSE
-		'''
+	def p_interpretedname(self, p): #neither of these are actually terminals... hmm
+		"""
+		interpretedname : NUMERAL
+						| QUOTEDSTRING
+		"""
 		pass
 
-	def p_starter(self, p):
-		"""
-		starter : sentence
-				| sentence starter
-		"""
-		print("Starting the parsing process.")
-		pass
-
-	def p_sentence(self, p):
-		"""
-		sentence : OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
-		"""
-		# note that the rule above is INCORRECT: it is just an example of how to specify a rule
-		'sentence : OPEN QUOTEDSTRING CLOSE'
-		print("???")
-		print("Found a sentence: {} {} {} ".format(p[2], p[3], p[4]))
-		if p[3] == p[4]:
-			no_quotedstrings = 1
-		else:
-			no_quotedstrings = 2
-
-		print("Number of distinct quoted strings: " + str(no_quotedstrings))
+	# def p_boolsent(self, p):
+	# 	'''
+	# 	boolsent : 
+	# 	'''
+	# 	pass
 
 	def p_error(self, p):
 
