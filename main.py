@@ -36,7 +36,7 @@ class ClifLexer():
 	def __del__(self):
 		print('Lexer destructor called.')
 
-	reserved_elems = {
+	reserved_bool = {
 		'and' : 'AND',
 		'or' : 'OR',
 		'iff' : 'IFF',
@@ -57,7 +57,7 @@ class ClifLexer():
 		'RESERVEDELEMENT'
 	]
 
-	tokens += reserved_elems.values()
+	tokens += reserved_bool.values()
 
 	t_ignore = ' \t\r\n\f\v'
 
@@ -85,8 +85,8 @@ class ClifLexer():
 
 	def t_RESERVEDELEMENT(self, t):
 		r'[a-zA-Z]+(?::[a-zA-Z]+)*'
-		if t.value in self.reserved_elems:
-			t.type = self.reserved_elems[t.value]
+		if t.value in self.reserved_bool:
+			t.type = self.reserved_bool[t.value]
 			return t
 		else:
 			pass
