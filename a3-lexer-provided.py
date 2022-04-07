@@ -29,6 +29,8 @@ class ClifLexer():
 		'CHAR',
 		'DIGIT',
 		'NUMERAL',
+		'STRINGQUOTE',
+		'NAMEQUOTE',
 		'QUOTEDSTRING', 
 		'RESERVEDELEMENT'
 	]
@@ -36,6 +38,8 @@ class ClifLexer():
 	tokens += reserved_bool.values()
 
 	t_ignore = ' \t\r\n\f\v' # code as written in this file did not have beginning whitespace; added whitespace based on Brightspace announcement
+
+	# regular expressions used to build decorators for function tokens
 
 	digit = r'([0-9])'
 	numeral = r'(' + digit + r')+'
@@ -93,6 +97,14 @@ class ClifLexer():
 	def t_CHAR(self, t):
 		return t
 
+	@TOKEN(stringquote)
+	def t_STRINGQUOTE(self, t):
+		return t
+
+	@TOKEN(namequote)
+	def t_NAMEQUOTE(self, t):
+		return t
+
 	def lex(self, input_string):
 		self.lexer.input(input_string)
 		while True:
@@ -118,6 +130,6 @@ lex.lex(s)
 
 # remove later - just to test as u go along
 
-s = "(56e7&^%\'swag\')"
+s = "(56e\"7&^%\'swag\'b\')"
 print('\nLexing '+s)
 lex.lex(s)
