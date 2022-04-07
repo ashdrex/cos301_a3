@@ -1,3 +1,17 @@
+"""
+COS301 Assignment 3:
+
+This program contains a modified lexer and parser.
+Pass a CLIF file as an input and the program will
+output the results into a separate textfile.
+
+Example:
+'python main.py a3-valid-clif1-v2.txt True'
+
+Authors: Nicole Cortez (Dydomio), Ashley Drexler (ashdrex)
+Version: April 8, 2022
+"""
+
 import sys
 
 import ply.yacc as yacc
@@ -5,26 +19,30 @@ import ply.lex as lex
 
 from ply.lex import TOKEN
 
+
+"""
+LEXER
+"""
+
 class ClifLexer():
 
 	# CONSTRUCTOR
 	def __init__(self):
 		print('Lexer constructor called.')
 		self.lexer = lex.lex(module=self)
-		# start in the (standard) initial state
 		self.lexer.begin('INITIAL')
 
 	# DESTRUCTOR
 	def __del__(self):
 		print('Lexer destructor called.')
 
-	reserved_bool = {	# consider renaming to match content
+	reserved_elems = {
 		'and' : 'AND',
 		'or' : 'OR',
 		'iff' : 'IFF',
 		'if' : 'IF',
 		'not' : 'NOT',
-		'cl:comment' : 'CL_COMMENT'
+		'cl:comment' : 'COMMENT'
 	}
 
 	tokens = [
@@ -39,9 +57,9 @@ class ClifLexer():
 		'RESERVEDELEMENT'
 	]
 
-	tokens += reserved_bool.values()
+	tokens += reserved_elems.values()
 
-	t_ignore = ' \t\r\n\f\v' # code as written in this file did not have beginning whitespace; added whitespace based on Brightspace announcement
+	t_ignore = ' \t\r\n\f\v'
 
 	# regular expressions used to build decorators for function tokens
 
@@ -53,14 +71,6 @@ class ClifLexer():
 	namequote = r'\"'
 	quotedstring = stringquote + r'(' + character + r'|' + namequote + r')*' + stringquote
 
-	def t_NEWLINE(self,t):
-		r'\n+'
-		t.lexer.lineno += len(t.value)
-
-	def t_error(self,t):
-		print("Lexing error: Unknown character \"{}\" at line {}".format(t.value[0], t.lexer.lineno))
-		t.lexer.skip(1)
-
 	# token specification as a string (no regular expression)
 
 	t_OPEN= '\('
@@ -68,16 +78,15 @@ class ClifLexer():
 
 	# token specification as a regular expression
 
-	# the digit token is recognized, but... numbers will always get tagged as numerals because they're one or more digits
-	# should numerals be two or more digits?
-	t_DIGIT= r'([0-9])'
-	#t_NUMERAL=
+	# t_DIGIT= r'([0-9])'
+	def t_DIGIT(self, t):
+		r'\b\d\b'
+		return t
 
 	def t_RESERVEDELEMENT(self, t):
 		r'[a-zA-Z]+(?::[a-zA-Z]+)*'
-		if t.value in self.reserved_bool:
-			t.type = self.reserved_bool[t.value]
-			# print("Boolean reserved word: " + t.value)
+		if t.value in self.reserved_elems:
+			t.type = self.reserved_elems[t.value]
 			return t
 		else:
 			pass
@@ -112,6 +121,9 @@ class ClifLexer():
 				break
 			print(tok)
 
+"""
+PARSER
+"""
 
 class ClifParser(object):
 
@@ -203,16 +215,24 @@ print('\nParsing '+s)
 parser.parse(s)
 
 """
-MAIN FUN
+MAIN FUNCTION
+
+Parameter file: relative path to a CLIF file
+
+Parameter lexer_parser: run the lexer only (False) or run both the lexer and parser (True)
+Preconditon: lexer_parser is a Boolean
 """
 
 def main(file, lexer_parser = True):
+	# TODO: remove set boolean value from lexer_parser arg
 	lex = ClifLexer()
 
 	with open(file, 'r') as clif_file:
 		lines = clif_file.readlines()
 		for line in lines:
 			print('\nLexing ' + line)
-			lex.lex(line)	
+			lex.lex(line)
+   
+   #TODO: output lexer results to a textfile	
 
 main(sys.argv[1])	# TODO: modify this and main() to include the boolean arg
