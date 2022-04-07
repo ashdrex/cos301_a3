@@ -59,6 +59,14 @@ class ClifLexer():
 
 	tokens += reserved_bool.values()
 
+	def t_NEWLINE(self,t):
+		r'\n+'
+		t.lexer.lineno += len(t.value)
+
+	def t_error(self,t):
+		print("Lexing error: Unknown character \"{}\" at line {}".format(t.value[0], t.lexer.lineno))
+		t.lexer.skip(1)
+
 	t_ignore = ' \t\r\n\f\v'
 
 	# regular expressions used to build decorators for function tokens
@@ -115,11 +123,14 @@ class ClifLexer():
 
 	def lex(self, input_string):
 		self.lexer.input(input_string)
+		list_of_str = []
 		while True:
 			tok = self.lexer.token()
 			if not tok:
 				break
 			print(tok)
+			list_of_str.append(str(tok) + '\n')
+		return(list_of_str)
 
 """
 PARSER
@@ -150,7 +161,6 @@ class ClifParser(object):
 		"""
 		# note that the rule above is INCORRECT: it is just an example of how to specify a rule
 		'sentence : OPEN QUOTEDSTRING CLOSE'
-		print("???")
 		print("Found a sentence: {} {} {} ".format(p[2], p[3], p[4]))
 		if p[3] == p[4]:
 			no_quotedstrings = 1
@@ -178,41 +188,40 @@ class ClifParser(object):
 		# parser = yacc.yacc(module=self)
 
 		self.parser.parse(input_string)
-		print("ok")
 
 """
 HARD-CODED TESTS
 """
 
-# using only the lexer
-lexer = ClifLexer()
-s = "(and ('B' 'C') (or ('C' 'D'))))"
-print('\nLexing '+s)
-lexer.lex(s)
+# # using only the lexer
+# lexer = ClifLexer()
+# s = "(and ('B' 'C') (or ('C' 'D'))))"
+# print('\nLexing '+s)
+# lexer.lex(s)
 
-parser = ClifParser()
-s = "(and 'Func')"
-#s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-parser.parse(s)
+# parser = ClifParser()
+# s = "(and 'Func')"
+# #s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# parser.parse(s)
 
-parser = ClifParser()
-s = "(or 'Func')"
-#s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-parser.parse(s)
+# parser = ClifParser()
+# s = "(or 'Func')"
+# #s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# parser.parse(s)
 
-# the following is currently not working but should be accepted because ? is in the set char
-parser = ClifParser()
-s = "('who' 'is' '?')" # there was a space between the last ' and )
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-parser.parse(s)
+# # the following is currently not working but should be accepted because ? is in the set char
+# parser = ClifParser()
+# s = "('who' 'is' '?')" # there was a space between the last ' and )
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# parser.parse(s)
 
 """
 MAIN FUNCTION
@@ -223,16 +232,24 @@ Parameter lexer_parser: run the lexer only (False) or run both the lexer and par
 Preconditon: lexer_parser is a Boolean
 """
 
-def main(file, lexer_parser = True):
+def main(file, lexer_parser):
 	# TODO: remove set boolean value from lexer_parser arg
 	lex = ClifLexer()
 
-	with open(file, 'r') as clif_file:
-		lines = clif_file.readlines()
-		for line in lines:
-			print('\nLexing ' + line)
-			lex.lex(line)
-   
-   #TODO: output lexer results to a textfile	
+	if lexer_parser == "False":
+		with open(file, 'r') as clif_file, open("q1_results.txt", "w") as lexer_results:
+			lines = clif_file.readlines()
+			for line in lines:
+				lex_lines = lex.lex(line)
+				lexer_results.write('\nLexing ' + line)
+				
+				for lex_token in lex_lines: 
+					lexer_results.write(lex_token)
 
-main(sys.argv[1])	# TODO: modify this and main() to include the boolean arg
+			lexer_results.close()
+	elif lexer_parser == "True":
+		pass
+	else:
+		print("Error.")
+
+main(sys.argv[1], sys.argv[2])	# TODO: modify this and main() to include the boolean arg
