@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'AND CHAR CLOSE COMMENT DIGIT IF IFF NAMEQUOTE NOT NUMERAL OPEN OR QUOTEDSTRING RESERVEDELEMENT STRINGQUOTE\n\t\tstarter : sentence\n\t\t\t\t| sentence starter\n\t\t\n\t\tsentence : OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE\n\t\t'
+_lr_signature = 'AND CHAR CLOSE CL_COMMENT DIGIT IF IFF NAMEQUOTE NOT NUMERAL OPEN OR QUOTEDSTRING RESERVEDELEMENT STRINGQUOTE\n\t\tinterpretedname : NUMERAL\n\t\t\t\t\t\t| QUOTEDSTRING\n\t\t\n\t\tpredicate : interpretedname\n\t\t\n\t\ttermseq : interpretedname\n\t\t\t\t| interpretedname termseq\n\t\t\n\t\tatomsent : OPEN predicate termseq CLOSE\n\t\t\n\t\tstarter : sentence\n\t\t\t\t| sentence starter\n\t\t\n\t\tsentence : OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE\n\t\t'
     
-_lr_action_items = {'OPEN':([0,2,8,],[3,3,-3,]),'$end':([1,2,4,8,],[0,-1,-2,-3,]),'AND':([3,],[5,]),'QUOTEDSTRING':([5,6,],[6,7,]),'CLOSE':([7,],[8,]),}
+_lr_action_items = {'NUMERAL':([0,],[2,]),'QUOTEDSTRING':([0,],[3,]),'$end':([1,2,3,],[0,-1,-2,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'starter':([0,2,],[1,4,]),'sentence':([0,2,],[2,2,]),}
+_lr_goto_items = {'interpretedname':([0,],[1,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,8 +26,14 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> starter","S'",1,None,None,None),
-  ('starter -> sentence','starter',1,'p_starter','main.py',139),
-  ('starter -> sentence starter','starter',2,'p_starter','main.py',140),
-  ('sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE','sentence',5,'p_sentence','main.py',147),
+  ("S' -> interpretedname","S'",1,None,None,None),
+  ('interpretedname -> NUMERAL','interpretedname',1,'p_interpretedname','a3-parser-provided.py',128),
+  ('interpretedname -> QUOTEDSTRING','interpretedname',1,'p_interpretedname','a3-parser-provided.py',129),
+  ('predicate -> interpretedname','predicate',1,'p_predicate','a3-parser-provided.py',135),
+  ('termseq -> interpretedname','termseq',1,'p_termseq','a3-parser-provided.py',141),
+  ('termseq -> interpretedname termseq','termseq',2,'p_termseq','a3-parser-provided.py',142),
+  ('atomsent -> OPEN predicate termseq CLOSE','atomsent',4,'p_atomsent','a3-parser-provided.py',148),
+  ('starter -> sentence','starter',1,'p_starter','a3-parser-provided.py',154),
+  ('starter -> sentence starter','starter',2,'p_starter','a3-parser-provided.py',155),
+  ('sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE','sentence',5,'p_sentence','a3-parser-provided.py',162),
 ]

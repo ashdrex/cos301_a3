@@ -123,6 +123,31 @@ class ClifParser(object):
 		self.lexer = ClifLexer()
 		self.parser = yacc.yacc(module=self)
 
+	def p_interpretedname(self, p): #neither of these are actually terminals... hmm
+		"""
+		interpretedname : NUMERAL
+						| QUOTEDSTRING
+		"""
+		pass
+
+	def p_predicate(self, p):
+		'''
+		predicate : interpretedname
+		'''
+		pass
+
+	def p_termseq(self, p):
+		'''
+		termseq : interpretedname
+				| interpretedname termseq
+		'''
+		pass
+
+	def p_atomsent(self, p):
+		'''
+		atomsent : OPEN predicate termseq CLOSE
+		'''
+		pass
 
 	def p_starter(self, p):
 		"""
@@ -206,7 +231,9 @@ parser.parse(s)
 MAIN FUN
 """
 
-def main(file, lexer_parser = True):
+# temporarily commented out so it's not running too many tests
+
+'''def main(file, lexer_parser = True):
 	lex = ClifLexer()
 
 	with open(file, 'r') as clif_file:
@@ -215,4 +242,4 @@ def main(file, lexer_parser = True):
 			print('\nLexing ' + line)
 			lex.lex(line)	
 
-main(sys.argv[1])	# TODO: modify this and main() to include the boolean arg
+main(sys.argv[1])	# TODO: modify this and main() to include the boolean arg'''

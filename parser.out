@@ -3,121 +3,86 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 Unused terminals:
 
     CHAR
-    COMMENT
+    CL_COMMENT
     DIGIT
     IF
     IFF
     NAMEQUOTE
     NOT
-    NUMERAL
     OR
     RESERVEDELEMENT
     STRINGQUOTE
 
 Grammar
 
-Rule 0     S' -> starter
-Rule 1     starter -> sentence
-Rule 2     starter -> sentence starter
-Rule 3     sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
+Rule 0     S' -> interpretedname
+Rule 1     interpretedname -> NUMERAL
+Rule 2     interpretedname -> QUOTEDSTRING
+Rule 3     predicate -> interpretedname
+Rule 4     termseq -> interpretedname
+Rule 5     termseq -> interpretedname termseq
+Rule 6     atomsent -> OPEN predicate termseq CLOSE
+Rule 7     starter -> sentence
+Rule 8     starter -> sentence starter
+Rule 9     sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
 
 Terminals, with rules where they appear
 
-AND                  : 3
+AND                  : 9
 CHAR                 : 
-CLOSE                : 3
-COMMENT              : 
+CLOSE                : 6 9
+CL_COMMENT           : 
 DIGIT                : 
 IF                   : 
 IFF                  : 
 NAMEQUOTE            : 
 NOT                  : 
-NUMERAL              : 
-OPEN                 : 3
+NUMERAL              : 1
+OPEN                 : 6 9
 OR                   : 
-QUOTEDSTRING         : 3 3
+QUOTEDSTRING         : 2 9 9
 RESERVEDELEMENT      : 
 STRINGQUOTE          : 
 error                : 
 
 Nonterminals, with rules where they appear
 
-sentence             : 1 2
-starter              : 2 0
+atomsent             : 
+interpretedname      : 3 4 5 0
+predicate            : 6
+sentence             : 7 8
+starter              : 8
+termseq              : 5 6
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . starter
-    (1) starter -> . sentence
-    (2) starter -> . sentence starter
-    (3) sentence -> . OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
+    (0) S' -> . interpretedname
+    (1) interpretedname -> . NUMERAL
+    (2) interpretedname -> . QUOTEDSTRING
 
-    OPEN            shift and go to state 3
+    NUMERAL         shift and go to state 2
+    QUOTEDSTRING    shift and go to state 3
 
-    starter                        shift and go to state 1
-    sentence                       shift and go to state 2
+    interpretedname                shift and go to state 1
 
 state 1
 
-    (0) S' -> starter .
+    (0) S' -> interpretedname .
 
 
 
 state 2
 
-    (1) starter -> sentence .
-    (2) starter -> sentence . starter
-    (1) starter -> . sentence
-    (2) starter -> . sentence starter
-    (3) sentence -> . OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
+    (1) interpretedname -> NUMERAL .
 
-    $end            reduce using rule 1 (starter -> sentence .)
-    OPEN            shift and go to state 3
+    $end            reduce using rule 1 (interpretedname -> NUMERAL .)
 
-    sentence                       shift and go to state 2
-    starter                        shift and go to state 4
 
 state 3
 
-    (3) sentence -> OPEN . AND QUOTEDSTRING QUOTEDSTRING CLOSE
+    (2) interpretedname -> QUOTEDSTRING .
 
-    AND             shift and go to state 5
-
-
-state 4
-
-    (2) starter -> sentence starter .
-
-    $end            reduce using rule 2 (starter -> sentence starter .)
-
-
-state 5
-
-    (3) sentence -> OPEN AND . QUOTEDSTRING QUOTEDSTRING CLOSE
-
-    QUOTEDSTRING    shift and go to state 6
-
-
-state 6
-
-    (3) sentence -> OPEN AND QUOTEDSTRING . QUOTEDSTRING CLOSE
-
-    QUOTEDSTRING    shift and go to state 7
-
-
-state 7
-
-    (3) sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING . CLOSE
-
-    CLOSE           shift and go to state 8
-
-
-state 8
-
-    (3) sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE .
-
-    OPEN            reduce using rule 3 (sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE .)
-    $end            reduce using rule 3 (sentence -> OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE .)
+    $end            reduce using rule 2 (interpretedname -> QUOTEDSTRING .)
 
