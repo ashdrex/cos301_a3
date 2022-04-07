@@ -133,8 +133,11 @@ class ClifParser(object):
 
 	def p_sentence(self, p): # TODO add boolsent once it's defined
 		"""
-		sentence : atomsent
+		sentence : OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
 		"""
+		# should actually be: sentence : atomsent
+		#							   | boolsent
+
 		# **rm note that the rule above is INCORRECT: it is just an example of how to specify a rule
 		#'sentence : OPEN QUOTEDSTRING CLOSE'
 		print("???")
