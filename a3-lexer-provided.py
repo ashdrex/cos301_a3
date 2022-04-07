@@ -14,9 +14,13 @@ class ClifLexer():
 	def __del__(self):
 		print('Lexer destructor called.')
 
-	reserved_bool = {
-		'and': 'AND',
-		'or': 'OR'
+	reserved_bool = {	# consider renaming to match content
+		'and' : 'AND',
+		'or' : 'OR',
+		'iff' : 'IFF',
+		'if' : 'IF',
+		'not' : 'NOT',
+		'cl:comment' : 'CL_COMMENT'
 	}
 
 	tokens = [
@@ -56,19 +60,15 @@ class ClifLexer():
 	t_DIGIT= r'([0-9])'
 	#t_NUMERAL=
 
-	# right now the r'\w+' in this function is catching the above tokens
-	# causing them to not be printed - so for now it is commented out
-	'''def t_RESERVEDELEMENT(self, t):
-		# here we use a regular expression to say what matches this particular token:
-		# any sequence of standard characters of length 1 or greater
-		# but this does not yet cover all reservedelements
-		r'\w+'
+	def t_RESERVEDELEMENT(self, t):
+		r'[a-zA-Z]+(?::[a-zA-Z]+)*'
+		print(t.value)
 		if t.value in self.reserved_bool:
 			t.type = self.reserved_bool[t.value]
-			#print("Boolean reserved word: " + t.value)
+			# print("Boolean reserved word: " + t.value)
 			return t
 		else:
-			pass'''
+			pass
 
 	def t_QUOTEDSTRING(self, t):
 		# This is not yet correct: you need to complete the lexing of quotedstring
@@ -109,5 +109,9 @@ lex.lex(s)
 # remove later - just to test as u go along
 
 s = "(56e7)"
+print('\nLexing '+s)
+lex.lex(s)
+
+s = "(and (or (iff (if (not (cl:comment))))))"
 print('\nLexing '+s)
 lex.lex(s)
