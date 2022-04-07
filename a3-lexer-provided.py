@@ -29,6 +29,8 @@ class ClifLexer():
 		'CHAR',
 		'DIGIT',
 		'NUMERAL',
+		'STRINGQUOTE',
+		'NAMEQUOTE',
 		'QUOTEDSTRING', 
 		'RESERVEDELEMENT'
 	]
@@ -37,9 +39,15 @@ class ClifLexer():
 
 	t_ignore = ' \t\r\n\f\v' # code as written in this file did not have beginning whitespace; added whitespace based on Brightspace announcement
 
+	# regular expressions used to build decorators for function tokens
+
 	digit = r'([0-9])'
 	numeral = r'(' + digit + r')+'
-	character = r'(' + digit + r'|[^0-9\)\()])' # gross - currently necessary because t_CHAR (a function) has higher priority than t_OPEN and t_CLOSE
+	character = r'(' + digit + r'|[^0-9\)\(\'\"])' # gross - currently necessary because t_CHAR has higher priority than other rules
+
+	stringquote = r'\''
+	namequote = r'\"'
+	quotedstring = stringquote + r'(' + character + r'|' + namequote + r')*' + stringquote
 
 	def t_NEWLINE(self,t):
 		r'\n+'
@@ -57,6 +65,7 @@ class ClifLexer():
 	# token specification as a regular expression
 
 	# the digit token is recognized, but... numbers will always get tagged as numerals because they're one or more digits
+	# should numerals be two or more digits?
 	t_DIGIT= r'([0-9])'
 	#t_NUMERAL=
 
@@ -70,9 +79,10 @@ class ClifLexer():
 		else:
 			pass
 
+	@TOKEN(quotedstring)
 	def t_QUOTEDSTRING(self, t):
 		# This is not yet correct: you need to complete the lexing of quotedstring
-		r'\''
+		#r'\''
 		return t
 
 	@TOKEN(numeral)
@@ -81,6 +91,14 @@ class ClifLexer():
 
 	@TOKEN(character)
 	def t_CHAR(self, t):
+		return t
+
+	@TOKEN(stringquote)
+	def t_STRINGQUOTE(self, t):
+		return t
+
+	@TOKEN(namequote)
+	def t_NAMEQUOTE(self, t):
 		return t
 
 	def lex(self, input_string):
@@ -108,7 +126,7 @@ lex.lex(s)
 
 # remove later - just to test as u go along
 
-s = "(56e7)"
+s = "(56e\"7&^%\'swag\'b\')"
 print('\nLexing '+s)
 lex.lex(s)
 
