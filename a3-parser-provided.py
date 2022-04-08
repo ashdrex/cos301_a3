@@ -172,7 +172,7 @@ class ClifParser(object):
 			print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
 		else:
 			# placeholder, but this should never happen
-			print("uh oh spaghettios")
+			print("uh oh spaghettios (atomic)")
 
 
 	def p_sentence_bool(self, p):
@@ -181,7 +181,18 @@ class ClifParser(object):
 		"""
 
 		p[0] = p[1]
-		print("Found a sentence: {}".format(p[0]))
+
+		# TODO print differently depending on what kind of boolsent it was
+		# and, or, not
+		if(len(p[0]) == 4):
+			print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
+		# if, iff
+		elif(len(p[0]) == 5):
+			print("Found a sentence: {}{} {} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3], p[0][4]))
+		else:
+			# placeholder, but this should never happen
+			print("uh oh spaghettios (boolean)")
+		# print("Found a sentence: {}".format(p[0]))
 
 	# special sentence case for multiple occurrences of sentence
 	# only used with and/or boolsent
@@ -200,11 +211,8 @@ class ClifParser(object):
 		'''
 		# temporarily removed termseq b/c an error is being caught
 
-		# p[3] comes back as an array because of the slicing in termseq
-		# not necessarily a problem I think, just looks somewhat odd with the way the output is currently formatted
-
 		# don't return termseq if it's empty
-		if (p[3] == [None]):
+		if (p[3] == None):
 			p[0] = (p[1], p[2], p[4])
 		else:
 			p[0] = (p[1], p[2], p[3], p[4])
@@ -215,15 +223,22 @@ class ClifParser(object):
 		'''
 		p[0] = p[1]
 
-	# the empty production rule stops the error with termseq coming up
-	# but I'm not sure if this is correct - still need to figure out whether {} means * or +
 	def p_termseq(self, p):
 		'''
 		termseq : interpretedname
 				| interpretedname termseq
 				| empty
 		'''
-		p[0] = p[1:]
+
+		# TODO fix this conditional, the logic is weird (if if -> same result as "else")
+		if(p[1] != None):
+			if(len(p) == 2):
+				p[0] = p[1]
+			elif(len(p) == 3):
+				p[0] = "{} {}".format(p[1], p[2])
+		else:
+			p[0] = p[1]
+		#print("termseq is " + p[0])
 
 	# commenting out (for now?) since its claiming duplicate rule
 	def p_interpretedname(self, p): #neither of these are actually terminals... hmm
@@ -249,27 +264,26 @@ class ClifParser(object):
 		'''
 		boolsent : OPEN AND multisent CLOSE
 		'''
-		p[0] = ('AND', p[3])
+		p[0] = (p[1], 'AND', p[3], p[4])
 
 	def p_boolsent_or(self, p):
 		'''
 		boolsent : OPEN OR multisent CLOSE
 		'''
-		p[0] = ('OR', p[3])
+		p[0] = (p[1], 'OR', p[3], p[4])
 
 	def p_boolsent_if(self, p):
 		'''
 		boolsent : OPEN IF sentence sentence CLOSE
 				 | OPEN IFF sentence sentence CLOSE
 		'''
-		# for now only handling IF, not IFF for testing:
-		p[0] = (p[2], p[3], p[4])
+		p[0] = (p[1], p[2], p[3], p[4], p[5])
 
 	def p_boolsent_not(self, p):
 		'''
 		boolsent : OPEN NOT sentence CLOSE
 		'''
-		p[0] = ('NOT', p[3])
+		p[0] = (p[1], 'NOT', p[3], p[4])
 
 	# experimental empty production rule
 	# reduce/reduce conflict with termseq - > interpretedname.... but I don't know why
@@ -357,7 +371,7 @@ HARD-CODED TESTS
 
 #iff + if test
 parser = ClifParser()
-s = "(iff ('min' 4 8) (if ('yes') ('no')))"
+s = "(iff ('min' 4 8 16 'maybe') (if ('yes') ('no')))"
 print('\nLexing '+s)
 parser.lexer.lex(s)
 print('\nParsing '+s)
