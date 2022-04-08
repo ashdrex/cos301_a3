@@ -162,7 +162,9 @@ class ClifParser(object):
 		"""
 
 		p[0] = p[1]
-		print("Found a sentence: {}".format(p[0]))
+		# there's a better way to do this - maybe build a string in atomsent
+		# instead of returning the OPEN and CLOSE too
+		print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
 
 
 	def p_sentence_bool(self, p):
@@ -179,9 +181,10 @@ class ClifParser(object):
 		atomsent : OPEN predicate termseq CLOSE
 		'''
 		# temporarily removed termseq b/c an error is being caught
-		# we do need termseq, but... what to do with it?
-		p[0] = p[2]
-		# p[0] = (p[2], p[3]) # not this exactly - makes the output weird
+
+		# p[3] comes back as an array because of the slicing in termseq
+		# not necessarily a problem I think, just looks somewhat odd with the way the output is currently formatted
+		p[0] = (p[1], p[2], p[3], p[4])
 
 	def p_predicate(self, p):
 		'''
