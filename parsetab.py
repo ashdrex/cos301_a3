@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'starterAND CHAR CLOSE COMMENT DIGIT IF IFF NAMEQUOTE NOT NUMERAL OPEN OR QUOTEDSTRING RESERVEDELEMENT STRINGQUOTE\n\t\tstarter : sentence\n\t\t\t\t| sentence starter\n\t\t\n\t\tsentence : atomsent\n\t\t\n\t\tsentence : boolsent\n\t\t\n\t\tatomsent : OPEN predicate CLOSE\n\t\t\n\t\tpredicate : interpretedname\n\t\t\n\t\ttermseq : interpretedname\n\t\t\t\t| interpretedname termseq\n\t\t\n\t\tinterpretedname : NUMERAL\n\t\t\n\t\tinterpretedname : QUOTEDSTRING\n\t\t\n\t\tboolsent : OPEN AND sentence CLOSE\n\t\t\n\t\tboolsent : OPEN OR sentence CLOSE\n\t\t\n\t\tboolsent : OPEN IF sentence sentence CLOSE\n\t\t\t\t\t| OPEN IFF sentence sentence CLOSE\n\t\t\n\t\tboolsent : OPEN NOT sentence CLOSE\n\t\t'
+_lr_signature = 'starterAND CHAR CLOSE COMMENT DIGIT IF IFF NAMEQUOTE NOT NUMERAL OPEN OR QUOTEDSTRING RESERVEDELEMENT STRINGQUOTE\n\t\tstarter : sentence\n\t\t\t\t| sentence starter\n\t\t\n\t\tsentence : atomsent\n\t\t\n\t\tsentence : boolsent\n\t\t\n\t\tatomsent : OPEN predicate termseq CLOSE\n\t\t\n\t\tpredicate : interpretedname\n\t\t\n\t\ttermseq : interpretedname\n\t\t\t\t| interpretedname termseq\n\t\t\t\t| empty\n\t\t\n\t\tinterpretedname : NUMERAL\n\t\t\t\t\t\t| QUOTEDSTRING\n\t\t\n\t\tboolsent : OPEN AND sentence CLOSE\n\t\t\n\t\tboolsent : OPEN OR sentence CLOSE\n\t\t\n\t\tboolsent : OPEN IF sentence sentence CLOSE\n\t\t\t\t\t| OPEN IFF sentence sentence CLOSE\n\t\t\n\t\tboolsent : OPEN NOT sentence CLOSE\n\t\tempty :'
     
-_lr_action_items = {'OPEN':([0,2,3,4,8,9,10,11,12,16,19,20,22,23,26,27,28,],[5,5,-3,-4,5,5,5,5,5,-5,5,5,-11,-12,-15,-13,-14,]),'$end':([1,2,3,4,6,16,22,23,26,27,28,],[0,-1,-3,-4,-2,-5,-11,-12,-15,-13,-14,]),'CLOSE':([3,4,7,13,14,15,16,17,18,21,22,23,24,25,26,27,28,],[-3,-4,16,-6,-9,-10,-5,22,23,26,-11,-12,27,28,-15,-13,-14,]),'AND':([5,],[8,]),'OR':([5,],[9,]),'IF':([5,],[10,]),'IFF':([5,],[11,]),'NOT':([5,],[12,]),'NUMERAL':([5,],[14,]),'QUOTEDSTRING':([5,],[15,]),}
+_lr_action_items = {'OPEN':([0,2,3,4,8,9,10,11,12,21,22,24,26,27,30,31,32,],[5,5,-3,-4,5,5,5,5,5,5,5,-5,-12,-13,-16,-14,-15,]),'$end':([1,2,3,4,6,24,26,27,30,31,32,],[0,-1,-3,-4,-2,-5,-12,-13,-16,-14,-15,]),'CLOSE':([3,4,7,13,14,15,16,17,18,19,20,23,24,25,26,27,28,29,30,31,32,],[-3,-4,-17,-6,-10,-11,24,-7,-9,26,27,30,-5,-8,-12,-13,31,32,-16,-14,-15,]),'AND':([5,],[8,]),'OR':([5,],[9,]),'IF':([5,],[10,]),'IFF':([5,],[11,]),'NOT':([5,],[12,]),'NUMERAL':([5,7,13,14,15,17,],[14,14,-6,-10,-11,14,]),'QUOTEDSTRING':([5,7,13,14,15,17,],[15,15,-6,-10,-11,15,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'starter':([0,2,],[1,6,]),'sentence':([0,2,8,9,10,11,12,19,20,],[2,2,17,18,19,20,21,24,25,]),'atomsent':([0,2,8,9,10,11,12,19,20,],[3,3,3,3,3,3,3,3,3,]),'boolsent':([0,2,8,9,10,11,12,19,20,],[4,4,4,4,4,4,4,4,4,]),'predicate':([5,],[7,]),'interpretedname':([5,],[13,]),}
+_lr_goto_items = {'starter':([0,2,],[1,6,]),'sentence':([0,2,8,9,10,11,12,21,22,],[2,2,19,20,21,22,23,28,29,]),'atomsent':([0,2,8,9,10,11,12,21,22,],[3,3,3,3,3,3,3,3,3,]),'boolsent':([0,2,8,9,10,11,12,21,22,],[4,4,4,4,4,4,4,4,4,]),'predicate':([5,],[7,]),'interpretedname':([5,7,17,],[13,17,17,]),'termseq':([7,17,],[16,25,]),'empty':([7,17,],[18,18,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -31,15 +31,17 @@ _lr_productions = [
   ('starter -> sentence starter','starter',2,'p_starter','a3-parser-provided.py',134),
   ('sentence -> atomsent','sentence',1,'p_sentence_atom','a3-parser-provided.py',159),
   ('sentence -> boolsent','sentence',1,'p_sentence_bool','a3-parser-provided.py',168),
-  ('atomsent -> OPEN predicate CLOSE','atomsent',3,'p_atomsent','a3-parser-provided.py',177),
+  ('atomsent -> OPEN predicate termseq CLOSE','atomsent',4,'p_atomsent','a3-parser-provided.py',177),
   ('predicate -> interpretedname','predicate',1,'p_predicate','a3-parser-provided.py',184),
   ('termseq -> interpretedname','termseq',1,'p_termseq','a3-parser-provided.py',190),
   ('termseq -> interpretedname termseq','termseq',2,'p_termseq','a3-parser-provided.py',191),
-  ('interpretedname -> NUMERAL','interpretedname',1,'p_interpretedname_num','a3-parser-provided.py',205),
-  ('interpretedname -> QUOTEDSTRING','interpretedname',1,'p_interpretedname_quote','a3-parser-provided.py',211),
-  ('boolsent -> OPEN AND sentence CLOSE','boolsent',4,'p_boolsent_and','a3-parser-provided.py',217),
-  ('boolsent -> OPEN OR sentence CLOSE','boolsent',4,'p_boolsent_or','a3-parser-provided.py',223),
-  ('boolsent -> OPEN IF sentence sentence CLOSE','boolsent',5,'p_boolsent_if','a3-parser-provided.py',230),
-  ('boolsent -> OPEN IFF sentence sentence CLOSE','boolsent',5,'p_boolsent_if','a3-parser-provided.py',231),
-  ('boolsent -> OPEN NOT sentence CLOSE','boolsent',4,'p_boolsent_not','a3-parser-provided.py',238),
+  ('termseq -> empty','termseq',1,'p_termseq','a3-parser-provided.py',192),
+  ('interpretedname -> NUMERAL','interpretedname',1,'p_interpretedname','a3-parser-provided.py',199),
+  ('interpretedname -> QUOTEDSTRING','interpretedname',1,'p_interpretedname','a3-parser-provided.py',200),
+  ('boolsent -> OPEN AND sentence CLOSE','boolsent',4,'p_boolsent_and','a3-parser-provided.py',218),
+  ('boolsent -> OPEN OR sentence CLOSE','boolsent',4,'p_boolsent_or','a3-parser-provided.py',224),
+  ('boolsent -> OPEN IF sentence sentence CLOSE','boolsent',5,'p_boolsent_if','a3-parser-provided.py',231),
+  ('boolsent -> OPEN IFF sentence sentence CLOSE','boolsent',5,'p_boolsent_if','a3-parser-provided.py',232),
+  ('boolsent -> OPEN NOT sentence CLOSE','boolsent',4,'p_boolsent_not','a3-parser-provided.py',239),
+  ('empty -> <empty>','empty',0,'p_empty','a3-parser-provided.py',245),
 ]

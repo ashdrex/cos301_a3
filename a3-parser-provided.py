@@ -174,10 +174,11 @@ class ClifParser(object):
 
 	def p_atomsent(self, p):
 		'''
-		atomsent : OPEN predicate CLOSE
+		atomsent : OPEN predicate termseq CLOSE
 		'''
 		# temporarily removed termseq b/c an error is being caught
-		p[0] = p[2]
+		# p[0] = p[2]
+		p[0] = (p[2], p[3])
 
 	def p_predicate(self, p):
 		'''
@@ -185,32 +186,35 @@ class ClifParser(object):
 		'''
 		p[0] = p[1]
 
+	# the empty production rule stops the error with termseq coming up
+	# but I'm not sure if this is correct - still need to figure out whether {} means * or +
 	def p_termseq(self, p):
 		'''
 		termseq : interpretedname
 				| interpretedname termseq
+				| empty
 		'''
 		p[0] = p[1:]
 
 	# commenting out (for now?) since its claiming duplicate rule
-	# def p_interpretedname(self, p): #neither of these are actually terminals... hmm
-	# 	"""
-	# 	interpretedname : NUMERAL
-	# 					| QUOTEDSTRING
-	# 	"""
-	# 	pass
-
-	def p_interpretedname_num(self, p):
+	def p_interpretedname(self, p): #neither of these are actually terminals... hmm
 		"""
 		interpretedname : NUMERAL
+						| QUOTEDSTRING
 		"""
 		p[0] = p[1]
 
-	def p_interpretedname_quote(self, p):
-		"""
-		interpretedname : QUOTEDSTRING
-		"""
-		p[0] = p[1]
+	# def p_interpretedname_num(self, p):
+	# 	"""
+	# 	interpretedname : NUMERAL
+	# 	"""
+	# 	p[0] = p[1]
+
+	# def p_interpretedname_quote(self, p):
+	# 	"""
+	# 	interpretedname : QUOTEDSTRING
+	# 	"""
+	# 	p[0] = p[1]
 
 	def p_boolsent_and(self, p):
 		'''
@@ -238,6 +242,12 @@ class ClifParser(object):
 		boolsent : OPEN NOT sentence CLOSE
 		'''
 		p[0] = ('NOT', p[3])
+
+	# experimental empty production rule
+	# reduce/reduce conflict with termseq - > interpretedname.... but I don't know why
+	def p_empty(self, p):
+		'empty :'
+		pass
 
 	def p_error(self, p):
 
@@ -269,13 +279,13 @@ HARD-CODED TESTS
 # print('\nLexing '+s)
 # lexer.lex(s)
 
-# parser = ClifParser()
-# s = "(and 'Func')"
-# #s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
+parser = ClifParser()
+s = "(and 'Func')" # this one is invalid?
+#s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+print('\nLexing '+s)
+parser.lexer.lex(s)
+print('\nParsing '+s)
+parser.parse(s)
 
 # parser = ClifParser()
 # s = "(or 'Func')"
@@ -294,12 +304,12 @@ HARD-CODED TESTS
 # parser.parse(s)
 
 # ash's test
-parser = ClifParser()
-s = "(not ('hi'))"
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-result = parser.parse(s)
+# parser = ClifParser()
+# s = "(not ('hi'))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# result = parser.parse(s)
 
 # temporarily commented out so it's not running too many tests
 
