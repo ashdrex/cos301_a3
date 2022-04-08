@@ -164,7 +164,15 @@ class ClifParser(object):
 		p[0] = p[1]
 		# there's a better way to do this - maybe build a string in atomsent
 		# instead of returning the OPEN and CLOSE too
-		print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
+
+		# print differently depending on whether or not termseq was returned
+		if(len(p[0]) == 3):
+			print("Found a sentence: {}{}{}".format(p[0][0], p[0][1], p[0][2]))
+		elif(len(p[0]) == 4):
+			print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
+		else:
+			# placeholder, but this should never happen
+			print("uh oh spaghettios")
 
 
 	def p_sentence_bool(self, p):
@@ -175,6 +183,16 @@ class ClifParser(object):
 		p[0] = p[1]
 		print("Found a sentence: {}".format(p[0]))
 
+	# special sentence case for multiple occurrences of sentence
+	# only used with and/or boolsent
+	def p_multisent(self, p):
+		"""
+		multisent : sentence
+				  | sentence multisent
+				  | empty
+		"""
+
+		p[0] = p[1:]
 
 	def p_atomsent(self, p):
 		'''
@@ -184,7 +202,12 @@ class ClifParser(object):
 
 		# p[3] comes back as an array because of the slicing in termseq
 		# not necessarily a problem I think, just looks somewhat odd with the way the output is currently formatted
-		p[0] = (p[1], p[2], p[3], p[4])
+
+		# don't return termseq if it's empty
+		if (p[3] == [None]):
+			p[0] = (p[1], p[2], p[4])
+		else:
+			p[0] = (p[1], p[2], p[3], p[4])
 
 	def p_predicate(self, p):
 		'''
@@ -224,15 +247,21 @@ class ClifParser(object):
 
 	def p_boolsent_and(self, p):
 		'''
-		boolsent : OPEN AND sentence CLOSE
+		boolsent : OPEN AND multisent CLOSE
 		'''
 		p[0] = ('AND', p[3])
 
 	def p_boolsent_or(self, p):
 		'''
-		boolsent : OPEN OR sentence CLOSE
+		boolsent : OPEN OR multisent CLOSE
 		'''
 		# how to write the grammar for { sentence } cause idk
+		# one or zero instances of sentence is easy enough, but
+		# how to do more than one... hmmm
+		# we can't do exactly what we did with termseq because sentence is only allowed to multiply
+		# in the "and" and "or" variants of boolsent
+		# maybe add a new rule for a sentence that can multiply itself, and have and/or boolsent use that
+		# instead of the regular "sentence" ?
 		p[0] = ('OR', p[3])
 
 	def p_boolsent_if(self, p):
@@ -318,8 +347,16 @@ HARD-CODED TESTS
 # result = parser.parse(s)
 
 # atomsent + termseq test
+# parser = ClifParser()
+# s = "('max' 1 2 15)"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# result = parser.parse(s)
+
+# boolsent + multisent test
 parser = ClifParser()
-s = "('max' 1 2 15)"
+s = "(and ('max' 1 2 15) ('words') ('foo'))"
 print('\nLexing '+s)
 parser.lexer.lex(s)
 print('\nParsing '+s)
