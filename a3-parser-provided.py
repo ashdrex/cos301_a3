@@ -115,6 +115,19 @@ class ClifLexer():
 		# 	list_of_str.append(str(tok) + '\n')
 		# return(list_of_str)
 
+# method to turn a tuple into a string of its elements
+def stringifyTuple(tup):
+	# don't do anything if it's not a tuple
+	if (isinstance(tup, tuple)):
+		tupString = ""
+		for i in range (0, len(tup)):
+			if(tup[i] == ')' or tup[i-1] == "(" or tup[i] == " "):
+				tupString = tupString + str(tup[i])
+			else:
+				tupString = tupString + " " + str(tup[i])
+		return tupString.strip()
+	else:
+		return tup
 
 class ClifParser(object):
 
@@ -156,6 +169,8 @@ class ClifParser(object):
 
 	# is a sentence a whole unit with parentheses and some inner content? may need to update print statements to reflect that
 
+	# note; sentences currently return as tuples, print as strings
+	# this is a problem for displaying the output for p_sentence_bool
 	def p_sentence_atom(self, p):
 		"""
 		sentence : atomsent
@@ -183,6 +198,8 @@ class ClifParser(object):
 		p[0] = p[1]
 
 		# TODO print differently depending on what kind of boolsent it was
+		# currently having issues with the middle arguments (2 or 2+3) still being tuples
+
 		# and, or, not
 		if(len(p[0]) == 4):
 			print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
@@ -192,6 +209,7 @@ class ClifParser(object):
 		else:
 			# placeholder, but this should never happen
 			print("uh oh spaghettios (boolean)")
+
 		# print("Found a sentence: {}".format(p[0]))
 
 	# special sentence case for multiple occurrences of sentence
@@ -203,7 +221,17 @@ class ClifParser(object):
 				  | empty
 		"""
 
-		p[0] = p[1:]
+		# TODO replace the slice like it was replaced in atomsent
+		#p[0] = p[1:]
+
+		if(p[1] != None):
+			if(len(p) == 2):
+				p[0] = p[1]
+			elif(len(p) == 3):
+				p[0] = "{} {}".format(p[1], p[2])
+		else:
+			p[0] = p[1]
+			
 
 	def p_atomsent(self, p):
 		'''
@@ -231,6 +259,8 @@ class ClifParser(object):
 		'''
 
 		# TODO fix this conditional, the logic is weird (if if -> same result as "else")
+		# return termseq as a format string if it's a sequence of two or more terms
+		# maybe not ideal behavior - review later
 		if(p[1] != None):
 			if(len(p) == 2):
 				p[0] = p[1]
@@ -264,26 +294,27 @@ class ClifParser(object):
 		'''
 		boolsent : OPEN AND multisent CLOSE
 		'''
-		p[0] = (p[1], 'AND', p[3], p[4])
+		p[0] = (p[1], 'AND', stringifyTuple(p[3]), p[4])
 
 	def p_boolsent_or(self, p):
 		'''
 		boolsent : OPEN OR multisent CLOSE
 		'''
-		p[0] = (p[1], 'OR', p[3], p[4])
+		p[0] = (p[1], 'OR', stringifyTuple(p[3]), p[4])
 
+	# covers both IF and IFF
 	def p_boolsent_if(self, p):
 		'''
 		boolsent : OPEN IF sentence sentence CLOSE
 				 | OPEN IFF sentence sentence CLOSE
 		'''
-		p[0] = (p[1], p[2], p[3], p[4], p[5])
+		p[0] = (p[1], p[2], stringifyTuple(p[3]), stringifyTuple(p[4]), p[5])
 
 	def p_boolsent_not(self, p):
 		'''
 		boolsent : OPEN NOT sentence CLOSE
 		'''
-		p[0] = (p[1], 'NOT', p[3], p[4])
+		p[0] = (p[1], 'NOT', stringifyTuple(p[3]), p[4])
 
 	# experimental empty production rule
 	# reduce/reduce conflict with termseq - > interpretedname.... but I don't know why
@@ -321,13 +352,13 @@ HARD-CODED TESTS
 # print('\nLexing '+s)
 # lexer.lex(s)
 
-# parser = ClifParser()
-# #s = "(and 'Func')" # this one is invalid?
-# s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
+parser = ClifParser()
+#s = "(and 'Func')" # this one is invalid?
+s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+print('\nLexing '+s)
+parser.lexer.lex(s)
+print('\nParsing '+s)
+parser.parse(s)
 
 # parser = ClifParser()
 # # s = "(or 'Func')"
@@ -370,12 +401,12 @@ HARD-CODED TESTS
 # result = parser.parse(s)
 
 #iff + if test
-parser = ClifParser()
-s = "(iff ('min' 4 8 16 'maybe') (if ('yes') ('no')))"
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-result = parser.parse(s)
+# parser = ClifParser()
+# s = "(iff ('min' 4 8 16 'maybe') (if ('yes') ('no')))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# result = parser.parse(s)
 
 # temporarily commented out so it's not running too many tests
 
