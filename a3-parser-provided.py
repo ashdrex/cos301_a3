@@ -154,6 +154,8 @@ class ClifParser(object):
 
 	# 	print("Number of distinct quoted strings: " + str(no_quotedstrings))
 
+	# is a sentence a whole unit with parentheses and some inner content? may need to update print statements to reflect that
+
 	def p_sentence_atom(self, p):
 		"""
 		sentence : atomsent
@@ -177,8 +179,9 @@ class ClifParser(object):
 		atomsent : OPEN predicate termseq CLOSE
 		'''
 		# temporarily removed termseq b/c an error is being caught
-		# p[0] = p[2]
-		p[0] = (p[2], p[3])
+		# we do need termseq, but... what to do with it?
+		p[0] = p[2]
+		# p[0] = (p[2], p[3]) # not this exactly - makes the output weird
 
 	def p_predicate(self, p):
 		'''
@@ -279,13 +282,13 @@ HARD-CODED TESTS
 # print('\nLexing '+s)
 # lexer.lex(s)
 
-parser = ClifParser()
-s = "(and 'Func')" # this one is invalid?
-#s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-parser.parse(s)
+# parser = ClifParser()
+# #s = "(and 'Func')" # this one is invalid?
+# s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# parser.parse(s)
 
 # parser = ClifParser()
 # s = "(or 'Func')"
@@ -310,6 +313,14 @@ parser.parse(s)
 # parser.lexer.lex(s)
 # print('\nParsing '+s)
 # result = parser.parse(s)
+
+# atomsent + termseq test
+parser = ClifParser()
+s = "('max' 1 2 15)"
+print('\nLexing '+s)
+parser.lexer.lex(s)
+print('\nParsing '+s)
+result = parser.parse(s)
 
 # temporarily commented out so it's not running too many tests
 
