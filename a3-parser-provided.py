@@ -255,22 +255,15 @@ class ClifParser(object):
 		'''
 		boolsent : OPEN OR multisent CLOSE
 		'''
-		# how to write the grammar for { sentence } cause idk
-		# one or zero instances of sentence is easy enough, but
-		# how to do more than one... hmmm
-		# we can't do exactly what we did with termseq because sentence is only allowed to multiply
-		# in the "and" and "or" variants of boolsent
-		# maybe add a new rule for a sentence that can multiply itself, and have and/or boolsent use that
-		# instead of the regular "sentence" ?
 		p[0] = ('OR', p[3])
 
 	def p_boolsent_if(self, p):
 		'''
 		boolsent : OPEN IF sentence sentence CLOSE
-					| OPEN IFF sentence sentence CLOSE
+				 | OPEN IFF sentence sentence CLOSE
 		'''
 		# for now only handling IF, not IFF for testing:
-		p[0] = ('IF', p[3], p[4])
+		p[0] = (p[2], p[3], p[4])
 
 	def p_boolsent_not(self, p):
 		'''
@@ -323,8 +316,8 @@ HARD-CODED TESTS
 # parser.parse(s)
 
 # parser = ClifParser()
-# s = "(or 'Func')"
-# #s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+# # s = "(or 'Func')"
+# s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
 # print('\nLexing '+s)
 # parser.lexer.lex(s)
 # print('\nParsing '+s)
@@ -355,8 +348,16 @@ HARD-CODED TESTS
 # result = parser.parse(s)
 
 # boolsent + multisent test
+# parser = ClifParser()
+# s = "(and ('max' 1 2 15) ('words') ('foo'))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# result = parser.parse(s)
+
+#iff + if test
 parser = ClifParser()
-s = "(and ('max' 1 2 15) ('words') ('foo'))"
+s = "(iff ('min' 4 8) (if ('yes') ('no')))"
 print('\nLexing '+s)
 parser.lexer.lex(s)
 print('\nParsing '+s)
