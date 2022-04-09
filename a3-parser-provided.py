@@ -169,25 +169,14 @@ class ClifParser(object):
 
 	# is a sentence a whole unit with parentheses and some inner content? may need to update print statements to reflect that
 
-	# note; sentences currently return as tuples, print as strings
-	# this is a problem for displaying the output for p_sentence_bool
 	def p_sentence_atom(self, p):
 		"""
 		sentence : atomsent
 		"""
 
-		p[0] = p[1]
-		# there's a better way to do this - maybe build a string in atomsent
-		# instead of returning the OPEN and CLOSE too
+		p[0] = stringifyTuple(p[1])
 
-		# print differently depending on whether or not termseq was returned
-		if(len(p[0]) == 3):
-			print("Found a sentence: {}{}{}".format(p[0][0], p[0][1], p[0][2]))
-		elif(len(p[0]) == 4):
-			print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
-		else:
-			# placeholder, but this should never happen
-			print("uh oh spaghettios (atomic)")
+		print("Found a sentence: {}".format(p[0]))
 
 
 	def p_sentence_bool(self, p):
@@ -195,22 +184,9 @@ class ClifParser(object):
 		sentence : boolsent
 		"""
 
-		p[0] = p[1]
+		p[0] = stringifyTuple(p[1])
 
-		# TODO print differently depending on what kind of boolsent it was
-		# currently having issues with the middle arguments (2 or 2+3) still being tuples
-
-		# and, or, not
-		if(len(p[0]) == 4):
-			print("Found a sentence: {}{} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3]))
-		# if, iff
-		elif(len(p[0]) == 5):
-			print("Found a sentence: {}{} {} {}{}".format(p[0][0], p[0][1], p[0][2], p[0][3], p[0][4]))
-		else:
-			# placeholder, but this should never happen
-			print("uh oh spaghettios (boolean)")
-
-		# print("Found a sentence: {}".format(p[0]))
+		print("Found a sentence: {}".format(p[0]))
 
 	# special sentence case for multiple occurrences of sentence
 	# only used with and/or boolsent
@@ -220,8 +196,6 @@ class ClifParser(object):
 				  | sentence multisent
 				  | empty
 		"""
-
-		# TODO replace the slice like it was replaced in atomsent
 		#p[0] = p[1:]
 
 		if(p[1] != None):
@@ -237,7 +211,6 @@ class ClifParser(object):
 		'''
 		atomsent : OPEN predicate termseq CLOSE
 		'''
-		# temporarily removed termseq b/c an error is being caught
 
 		# don't return termseq if it's empty
 		if (p[3] == None):
@@ -270,7 +243,6 @@ class ClifParser(object):
 			p[0] = p[1]
 		#print("termseq is " + p[0])
 
-	# commenting out (for now?) since its claiming duplicate rule
 	def p_interpretedname(self, p): #neither of these are actually terminals... hmm
 		"""
 		interpretedname : NUMERAL
@@ -278,29 +250,17 @@ class ClifParser(object):
 		"""
 		p[0] = p[1]
 
-	# def p_interpretedname_num(self, p):
-	# 	"""
-	# 	interpretedname : NUMERAL
-	# 	"""
-	# 	p[0] = p[1]
-
-	# def p_interpretedname_quote(self, p):
-	# 	"""
-	# 	interpretedname : QUOTEDSTRING
-	# 	"""
-	# 	p[0] = p[1]
-
 	def p_boolsent_and(self, p):
 		'''
 		boolsent : OPEN AND multisent CLOSE
 		'''
-		p[0] = (p[1], 'AND', stringifyTuple(p[3]), p[4])
+		p[0] = stringifyTuple((p[1], 'AND', p[3], p[4]))
 
 	def p_boolsent_or(self, p):
 		'''
 		boolsent : OPEN OR multisent CLOSE
 		'''
-		p[0] = (p[1], 'OR', stringifyTuple(p[3]), p[4])
+		p[0] = stringifyTuple((p[1], 'OR', p[3], p[4]))
 
 	# covers both IF and IFF
 	def p_boolsent_if(self, p):
@@ -308,13 +268,13 @@ class ClifParser(object):
 		boolsent : OPEN IF sentence sentence CLOSE
 				 | OPEN IFF sentence sentence CLOSE
 		'''
-		p[0] = (p[1], p[2], stringifyTuple(p[3]), stringifyTuple(p[4]), p[5])
+		p[0] = stringifyTuple((p[1], p[2], p[3], p[4], p[5]))
 
 	def p_boolsent_not(self, p):
 		'''
 		boolsent : OPEN NOT sentence CLOSE
 		'''
-		p[0] = (p[1], 'NOT', stringifyTuple(p[3]), p[4])
+		p[0] = stringifyTuple((p[1], 'NOT', p[3], p[4]))
 
 	# experimental empty production rule
 	# reduce/reduce conflict with termseq - > interpretedname.... but I don't know why
@@ -352,13 +312,13 @@ HARD-CODED TESTS
 # print('\nLexing '+s)
 # lexer.lex(s)
 
-parser = ClifParser()
-#s = "(and 'Func')" # this one is invalid?
-s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-parser.parse(s)
+# parser = ClifParser()
+# #s = "(and 'Func')" # this one is invalid?
+# s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# parser.parse(s)
 
 # parser = ClifParser()
 # # s = "(or 'Func')"
@@ -400,13 +360,13 @@ parser.parse(s)
 # print('\nParsing '+s)
 # result = parser.parse(s)
 
-#iff + if test
-# parser = ClifParser()
-# s = "(iff ('min' 4 8 16 'maybe') (if ('yes') ('no')))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# result = parser.parse(s)
+# iff + if test
+parser = ClifParser()
+s = "(iff ('min' 4 8 16 'maybe') (if ('yes') (and ('max' 1 2 15) ('words') ('foo'))))"
+print('\nLexing '+s)
+parser.lexer.lex(s)
+print('\nParsing '+s)
+result = parser.parse(s)
 
 # temporarily commented out so it's not running too many tests
 
