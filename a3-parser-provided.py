@@ -9,13 +9,14 @@ class ClifLexer():
 
 	# CONSTRUCTOR
 	def __init__(self):
-		print('Lexer constructor called.')
+		# print('Lexer constructor called.')
 		self.lexer = lex.lex(module=self)
 		self.lexer.begin('INITIAL')
 
 	# DESTRUCTOR
 	def __del__(self):
-		print('Lexer destructor called.')
+		pass
+		# print('Lexer destructor called.')
 
 	reserved_bool = {
 		'and' : 'AND',
@@ -135,9 +136,13 @@ class ClifParser(object):
 
 	# CONSTRUCTOR
 	def __init__(self):
-		print('Parser constructor called.')
+		# print('Parser constructor called.')
 		self.lexer = ClifLexer()
 		self.parser = yacc.yacc(module=self)
+		self.is_atomic = False
+		self.is_bool = False
+		self.ops = 0
+		self.names = {}
 
 	start = 'starter'
 
@@ -146,8 +151,7 @@ class ClifParser(object):
 		starter : sentence
 				| sentence starter
 		"""
-		print("Starting the parsing process.")
-		pass
+		# print("Starting the parsing process.")
 
 	# def p_sentence(self, p): # TODO add boolsent once it's defined
 	# 	"""
@@ -176,7 +180,9 @@ class ClifParser(object):
 
 		p[0] = stringifyTuple(p[1])
 
-		print("Found a sentence: {}".format(p[0]))
+		# print("Found a sentence: {}".format(p[0]))
+		self.is_atomic = True
+		self.is_bool = False
 
 
 	def p_sentence_bool(self, p):
@@ -186,7 +192,9 @@ class ClifParser(object):
 
 		p[0] = stringifyTuple(p[1])
 
-		print("Found a sentence: {}".format(p[0]))
+		# print("Found a sentence: {}".format(p[0]))
+		self.is_atomic = False
+		self.is_bool = True
 
 	# special sentence case for multiple occurrences of sentence
 	# only used with and/or boolsent
@@ -217,6 +225,7 @@ class ClifParser(object):
 			p[0] = (p[1], p[2], p[4])
 		else:
 			p[0] = (p[1], p[2], p[3], p[4])
+			print(p[0])
 
 	def p_predicate(self, p):
 		'''
@@ -249,18 +258,22 @@ class ClifParser(object):
 						| QUOTEDSTRING
 		"""
 		p[0] = p[1]
+		if p[1][0] == ("'" or "\""): # lol there's gotta be a better way of recognizing a quotedstring, this way a quick way off the top of my head
+			self.names[p[1]] = p[1]
 
 	def p_boolsent_and(self, p):
 		'''
 		boolsent : OPEN AND multisent CLOSE
 		'''
 		p[0] = stringifyTuple((p[1], 'AND', p[3], p[4]))
+		self.ops += 1
 
 	def p_boolsent_or(self, p):
 		'''
 		boolsent : OPEN OR multisent CLOSE
 		'''
 		p[0] = stringifyTuple((p[1], 'OR', p[3], p[4]))
+		self.ops += 1
 
 	# covers both IF and IFF
 	def p_boolsent_if(self, p):
@@ -269,12 +282,15 @@ class ClifParser(object):
 				 | OPEN IFF sentence sentence CLOSE
 		'''
 		p[0] = stringifyTuple((p[1], p[2], p[3], p[4], p[5]))
+		self.ops += 1
+
 
 	def p_boolsent_not(self, p):
 		'''
 		boolsent : OPEN NOT sentence CLOSE
 		'''
 		p[0] = stringifyTuple((p[1], 'NOT', p[3], p[4]))
+		self.ops += 1
 
 	# experimental empty production rule
 	# reduce/reduce conflict with termseq - > interpretedname.... but I don't know why
@@ -301,6 +317,13 @@ class ClifParser(object):
 		# parser = yacc.yacc(module=self)
 
 		self.parser.parse(input_string)
+		self.print_output(input_string)
+
+	def print_output(self, input_string):
+		if self.is_atomic:
+			print("atomic: {}: ops={}, names={}".format(input_string, self.ops, len(self.names)))
+		elif self.is_bool:
+			print("Boolean: {}: ops={}, names={}".format(input_string, self.ops, len(self.names)))
 
 """
 HARD-CODED TESTS
@@ -336,14 +359,6 @@ HARD-CODED TESTS
 # print('\nParsing '+s)
 # parser.parse(s)
 
-# ash's test
-# parser = ClifParser()
-# s = "(not ('hi'))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# result = parser.parse(s)
-
 # atomsent + termseq test
 # parser = ClifParser()
 # s = "('max' 1 2 15)"
@@ -361,12 +376,20 @@ HARD-CODED TESTS
 # result = parser.parse(s)
 
 # iff + if test
-parser = ClifParser()
-s = "(iff ('min' 4 8 16 'maybe') (if ('yes') (and ('max' 1 2 15) ('words') ('foo'))))"
-print('\nLexing '+s)
-parser.lexer.lex(s)
-print('\nParsing '+s)
-result = parser.parse(s)
+# parser = ClifParser()
+# s = "(iff ('min' 4 8 16 'maybe') (if ('yes') (and ('max' 1 2 15) ('words') ('foo'))))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# result = parser.parse(s)
+# print(str(parser.get_count()) + " sentences")
+
+# print test/mocking a file input
+arr = ["('FuncA' 'a' 100)", "(and ('B' 'C') (or ('C' 'D')))", "(or ('FuncB' ('Func' 100 'A')) 'Func1')"]	# the example in the pdf has an extra paren for the second sent?
+print(str(len(arr)) + " sentences")    
+for s in arr:
+	parser = ClifParser()
+	result = parser.parse(s)
 
 # temporarily commented out so it's not running too many tests
 
