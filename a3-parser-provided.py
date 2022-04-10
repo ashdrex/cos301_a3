@@ -107,14 +107,14 @@ class ClifLexer():
 	# updated version in main.py for writing to file
 	def lex(self, input_string):
 		self.lexer.input(input_string)
-		# list_of_str = []
+		list_of_str = []
 		while True:
 			tok = self.lexer.token()
 			if not tok:
 				break
 			print(tok)
-		# 	list_of_str.append(str(tok) + '\n')
-		# return(list_of_str)
+			list_of_str.append(str(tok) + '\n')
+		return(list_of_str)
 
 # method to turn a tuple into a string of its elements
 def stringifyTuple(tup):
@@ -225,7 +225,6 @@ class ClifParser(object):
 			p[0] = (p[1], p[2], p[4])
 		else:
 			p[0] = (p[1], p[2], p[3], p[4])
-			print(p[0])
 
 	def p_predicate(self, p):
 		'''
@@ -317,47 +316,19 @@ class ClifParser(object):
 		# parser = yacc.yacc(module=self)
 
 		self.parser.parse(input_string)
-		self.print_output(input_string)
+		print(self.get_output(input_string))
 
-	def print_output(self, input_string):
+	def get_output(self, input_string):
 		if self.is_atomic:
-			print("atomic: {}: ops={}, names={}".format(input_string, self.ops, len(self.names)))
+			atom_str = "atomic: {}: ops={}, names={}".format(input_string.strip(), self.ops, len(self.names))
+			return atom_str
 		elif self.is_bool:
-			print("Boolean: {}: ops={}, names={}".format(input_string, self.ops, len(self.names)))
+			bool_str = "Boolean: {}: ops={}, names={}".format(input_string.strip(), self.ops, len(self.names))
+			return bool_str
 
 """
 HARD-CODED TESTS
 """
-
-# # using only the lexer
-# lexer = ClifLexer()
-# s = "(and ('B' 'C') (or ('C' 'D'))))"
-# print('\nLexing '+s)
-# lexer.lex(s)
-
-# parser = ClifParser()
-# #s = "(and 'Func')" # this one is invalid?
-# s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
-
-# parser = ClifParser()
-# # s = "(or 'Func')"
-# s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
-
-# # the following is currently not working but should be accepted because ? is in the set char
-# parser = ClifParser()
-# s = "('who' 'is' '?')" # there was a space between the last ' and )
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
 
 # atomsent + termseq test
 # parser = ClifParser()
@@ -385,11 +356,11 @@ HARD-CODED TESTS
 # print(str(parser.get_count()) + " sentences")
 
 # print test/mocking a file input
-arr = ["('FuncA' 'a' 100)", "(and ('B' 'C') (or ('C' 'D')))", "(or ('FuncB' ('Func' 100 'A')) 'Func1')"]	# the example in the pdf has an extra paren for the second sent?
-print(str(len(arr)) + " sentences")    
-for s in arr:
-	parser = ClifParser()
-	result = parser.parse(s)
+# arr = ["('FuncA' 'a' 100)", "(and ('B' 'C') (or ('C' 'D')))", "(or ('FuncB' ('Func' 100 'A')) 'Func1')"]	# the example in the pdf has an extra paren for the second sent?
+# print(str(len(arr)) + " sentences")    
+# for s in arr:
+# 	parser = ClifParser()
+# 	result = parser.parse(s)
 
 # temporarily commented out so it's not running too many tests
 
@@ -400,23 +371,41 @@ Parameter lexer_parser: run the lexer only (False) or run both the lexer and par
 Preconditon: lexer_parser is a Boolean
 """
 
-# def main(file, lexer_parser):
-# 	lex = ClifLexer()
+def main(file, lexer_parser):
+	lex = ClifLexer()
 
-# 	if lexer_parser == "False":
-# 		with open(file, 'r') as clif_file, open("q1_results.txt", "w") as lexer_results:
-# 			lines = clif_file.readlines()
-# 			for line in lines:
-# 				lex_lines = lex.lex(line)
-# 				lexer_results.write('\nLexing ' + line)
+	if lexer_parser == "False":
+		with open(file, 'r') as clif_file, open("lexer_results.txt", "a") as lexer_results:
+			lines = clif_file.readlines()
+			for line in lines:
+				lex_lines = lex.lex(line)
+				lexer_results.write('\nLexing ' + line)
 				
-# 				for lex_token in lex_lines: 
-# 					lexer_results.write(lex_token)
+				for lex_token in lex_lines: 
+					lexer_results.write(lex_token)
 
-# 			lexer_results.close()
-# 	elif lexer_parser == "True":
-# 		pass
-# 	else:
-# 		print("Error.")
+			lexer_results.close()
+	elif lexer_parser == "True":
+		with open(file, 'r') as clif_file, open("lexer_results.txt", "a") as lexer_results,  open("parser_results.txt", "a") as parser_results:
+			lines = clif_file.readlines()
 
-# main(sys.argv[1], sys.argv[2])
+			num_sentences = str(len(lines)) + " sentences\n"
+			print(num_sentences)    
+			parser_results.write(num_sentences)
+			for line in lines:
+				parser = ClifParser()
+
+				lex_lines = lex.lex(line)
+				
+				result = parser.parse(line)
+				parser_results.write(parser.get_output(line) + "\n")
+
+				lexer_results.write('\n\nLexing ' + line)				
+				for lex_token in lex_lines: 
+					lexer_results.write(lex_token)
+
+			lexer_results.close()	
+	else:
+		print("Error.")
+
+main(sys.argv[1], sys.argv[2])

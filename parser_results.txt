@@ -1,0 +1,7 @@
+6 sentences
+Boolean: (or (not ('TODAY=03/26/22')) (not ('TODAY=03/26/22')) (and ('FRIDAY' 13))): ops=4, names=2
+Boolean: (and (0)): ops=1, names=0
+Boolean: (and (0 1 2 3 4 'more;')): ops=1, names=1
+Boolean: (if (not ('True')) (and (0 '=' 1) (0 '=' 2) (not ('FalseStatement3')))): ops=4, names=3
+Boolean: (and (1000) (1001) ('1001+')): ops=1, names=1
+Boolean: (or (100) ('and' 1000 1001 '1001+')): ops=1, names=2
