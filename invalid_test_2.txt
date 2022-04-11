@@ -1,0 +1,4 @@
+(not ('coprime' 'var1' 'var2' 35))
+(if (or ('theme = FF1') ('theme = FFC')) ('template = {{StatsSkillsDS}}'))
+(if (2 '|' '2' '&' 'RBTREE*') (and ('RBTREE[1]') ('RBTREE[2]')) ('print' 'results'))
+(6)

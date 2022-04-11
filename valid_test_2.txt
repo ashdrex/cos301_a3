@@ -1,0 +1,4 @@
+(iff ('min' 4 8 16 'sizeof' 'float') (if ('True') (and ('max' 1 2 15) ('FuncB') ('FuncC'))))
+(not (or ('equals' 256 'sizeof' 'int') (not ('isEmpty' 'arr1'))))
+('sum' 1 2 '%' 3 4 'SQRT' 25)
+(and (if ('ARR1[2:] > 100') ('free' 'ARR2*' ',' 'ARR3*')) (not ('ARR4[0]')))
