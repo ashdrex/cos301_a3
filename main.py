@@ -295,27 +295,20 @@ class ClifParser(object):
 	def p_error(self, p):
 
 		if p is None:
-			raise TypeError("Unexpectedly reached end of file (EOF)")
+			print("Unexpectedly reached end of line input. Skipping...")
+		else:
+			# Note the location of the error before trying to lookahead
+			error_pos = p.lexpos
 
-		# Note the location of the error before trying to lookahead
-		error_pos = p.lexpos
+			# Reading the symbols from the Parser stack
+			stack = [symbol for symbol in self.parser.symstack][1:]
 
-		# Reading the symbols from the Parser stack
-		stack = [symbol for symbol in self.parser.symstack][1:]
-
-		print("Parsing error; current stack: " + str(stack))
+			print("Parsing error; current stack: " + str(stack))
 
 
 	def parse(self, input_string):
-		# initialize the parser
-		# parser = yacc.yacc(module=self)
-
 		self.parser.parse(input_string)
 
-		if (self.get_output(input_string)):
-			print(self.get_output(input_string))
-
-	def get_output(self, input_string):
 		if self.is_atomic:
 			atom_str = "atomic: {}: ops={}, names={}".format(input_string.strip(), self.ops, len(self.names))
 			return atom_str
@@ -336,39 +329,41 @@ def main(file, lexer_parser):
 	lex = ClifLexer()
 
 	if lexer_parser == "False":
-		with open(file, 'r') as clif_file, open("lexer_results.txt", "a") as lexer_results:
+		with open(file, 'r') as clif_file, open("results_file.txt", "a") as results_file:
 			lines = clif_file.readlines()
 			for line in lines:
 				lex_lines = lex.lex(line)
-				lexer_results.write('\nLexing ' + line)
+				results_file.write('\nLexing ' + line)
 				
 				for lex_token in lex_lines: 
-					lexer_results.write(lex_token)
+					results_file.write(lex_token)
 
-			lexer_results.close()
+			results_file.close()
 	elif lexer_parser == "True":
-		with open(file, 'r') as clif_file, open("lexer_results.txt", "a") as lexer_results,  open("parser_results.txt", "a") as parser_results:
+		with open(file, 'r') as clif_file, open("results_file.txt", "a") as results_file:
 			lines = clif_file.readlines()
 
-			num_sentences = str(len(lines)) + " sentences\n"
-			print(num_sentences)    
-			parser_results.write(num_sentences)
+			num_sentences = 0
+			parsed_sentences = []
 			for line in lines:
 				parser = ClifParser()
 
 				lex_lines = lex.lex(line)
-				
 				result = parser.parse(line)
-				print_parser_output = parser.get_output(line)
 
-				if (print_parser_output):
-					parser_results.write(print_parser_output + "\n")
+				if (result):
+					parsed_sentences.append(result)
+					num_sentences += 1
 
-				lexer_results.write('\n\nLexing ' + line)				
+				results_file.write('\nLexing ' + line)				
 				for lex_token in lex_lines: 
-					lexer_results.write(lex_token)
+					results_file.write(lex_token)
 
-			lexer_results.close()	
+			results_file.write("\n\n{} sentences\n".format(num_sentences))
+			for sents in parsed_sentences:
+				results_file.write("{}\n".format(sents))
+
+			results_file.close()
 	else:
 		print("Error.")
 
