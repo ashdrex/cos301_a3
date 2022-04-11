@@ -311,7 +311,9 @@ class ClifParser(object):
 		# parser = yacc.yacc(module=self)
 
 		self.parser.parse(input_string)
-		print(self.get_output(input_string))
+
+		if (self.get_output(input_string)):
+			print(self.get_output(input_string))
 
 	def get_output(self, input_string):
 		if self.is_atomic:
@@ -320,40 +322,6 @@ class ClifParser(object):
 		elif self.is_bool:
 			bool_str = "Boolean: {}: ops={}, names={}".format(input_string.strip(), self.ops, len(self.names))
 			return bool_str
-
-"""
-HARD-CODED TESTS
-"""
-
-# # using only the lexer
-# lexer = ClifLexer()
-# s = "(and ('B' 'C') (or ('C' 'D'))))"
-# print('\nLexing '+s)
-# lexer.lex(s)
-
-# parser = ClifParser()
-# s = "(and 'Func')"
-# #s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
-
-# parser = ClifParser()
-# s = "(or 'Func')"
-# #s = "(and ('max' 1 2 15) (or  ('Func' 'D')))"
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
-
-# # the following is currently not working but should be accepted because ? is in the set char
-# parser = ClifParser()
-# s = "('who' 'is' '?')" # there was a space between the last ' and )
-# print('\nLexing '+s)
-# parser.lexer.lex(s)
-# print('\nParsing '+s)
-# parser.parse(s)
 
 """
 MAIN FUNCTION
@@ -391,7 +359,10 @@ def main(file, lexer_parser):
 				lex_lines = lex.lex(line)
 				
 				result = parser.parse(line)
-				parser_results.write(parser.get_output(line) + "\n")
+				print_parser_output = parser.get_output(line)
+
+				if (print_parser_output):
+					parser_results.write(print_parser_output + "\n")
 
 				lexer_results.write('\n\nLexing ' + line)				
 				for lex_token in lex_lines: 

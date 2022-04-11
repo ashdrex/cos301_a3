@@ -29,3 +29,42 @@ Boolean: (and ('B' 'C') (or ('C' 'D')) (or ('FuncB') ('Func' 100 'A') ('somethin
 atomic: ('cl:comment' 'B100%'): ops=0, names=2
 atomic: ('A1:"A_comment_inside"' 'COMMENT:B100%'): ops=0, names=2
 Boolean: (iff (and ('B_100' 'B_101' '$100')) ('[TODAY]' '[4,5,6]' '[3+4]')): ops=2, names=6
+4 sentences
+4 sentences
+4 sentences
+4 sentences
+4 sentences
+Boolean: (and (or ('add_num' 13 49 1) (if ('True') ('sub_num' 49 31)))): ops=3, names=3
+Boolean: (if ('FuncA' '==' 'FuncB') (and (222) (333))): ops=2, names=3
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+Boolean: (not (if ('True') ('FuncD' 'a' '-' 'b'))): ops=2, names=5
+4 sentences
+Boolean: (and (or ('add_num' 13 49 1) (if ('True') ('sub_num' 49 31)))): ops=3, names=3
+Boolean: (if ('FuncA' '==' 'FuncB') (and (222) (333))): ops=2, names=3
+4 sentences
+Boolean: (and (or ('add_num' 13 49 1) (if ('True') ('sub_num' 49 31)))): ops=3, names=3
+Boolean: (if ('FuncA' '==' 'FuncB') (and (222) (333))): ops=2, names=3
+Boolean: (and (not (if ('False') ('FuncD' 'a' '-' 'b'))) (if ('FuncA' '==' 'FuncB') ('add' 49 31))): ops=4, names=9
+Boolean: (not (if ('True') ('FuncD' 'a' '-' 'b'))): ops=2, names=5
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+atomic: ('FuncC' 1 '+' 2 '+' 3): ops=0, names=2
+4 sentences
+atomic: ('FuncC' ('get_num' 1 3) ('results')): ops=0, names=1
+atomic: ('FuncC' 1 '+' 2 '+' 3): ops=0, names=2
