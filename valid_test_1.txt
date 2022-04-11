@@ -1,0 +1,4 @@
+(and (or ('add_num' 13 49 1) (if ('True') ('sub_num' 49 31))
+(if ('FuncA' '==' 'FuncB') (and (222) (333)))
+('FuncC' ('get_num' 1 3) ('results')) 
+(not (if ('True') ('FuncD' 'a' '-' 'b')))

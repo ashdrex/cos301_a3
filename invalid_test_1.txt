@@ -1,0 +1,4 @@
+(and (not (if ('False') ('FuncD' 'a' '-' 'b'))) (if ('FuncA' '==' 'FuncB') ('add' 49 31))
+(if 123 (and (not 2) 13))
+('FuncC' 1 '+' 2 '+' 3)
+(or (or 'ABC_123' 'XYZ_789'))
