@@ -5,3 +5,27 @@ Boolean: (and (0 1 2 3 4 'more;')): ops=1, names=1
 Boolean: (if (not ('True')) (and (0 '=' 1) (0 '=' 2) (not ('FalseStatement3')))): ops=4, names=3
 Boolean: (and (1000) (1001) ('1001+')): ops=1, names=1
 Boolean: (or (100) ('and' 1000 1001 '1001+')): ops=1, names=2
+5 sentences
+atomic: ('FuncA' 'a' 100 25): ops=0, names=2
+Boolean: (and ('B' 'C') (or ('C' 'D')) (or ('FuncB') ('Func' 100 'A') ('something'))): ops=3, names=7
+atomic: ('cl:comment' 'B100%'): ops=0, names=2
+atomic: ('A1:"A_comment_inside"' 'COMMENT:B100%'): ops=0, names=2
+Boolean: (iff (and ('B_100' 'B_101' '$100')) ('[TODAY]' '[4,5,6]' '[3+4]')): ops=2, names=6
+5 sentences
+atomic: ('FuncA' 'a' 100 25): ops=0, names=2
+Boolean: (and ('B' 'C') (or ('C' 'D')) (or ('FuncB') ('Func' 100 'A') ('something'))): ops=3, names=7
+atomic: ('cl:comment' 'B100%'): ops=0, names=2
+atomic: ('A1:"A_comment_inside"' 'COMMENT:B100%'): ops=0, names=2
+Boolean: (iff (and ('B_100' 'B_101' '$100')) ('[TODAY]' '[4,5,6]' '[3+4]')): ops=2, names=6
+5 sentences
+atomic: ('FuncA' 'a' 100 25): ops=0, names=2
+Boolean: (and ('B' 'C') (or ('C' 'D')) (or ('FuncB') ('Func' 100 'A') ('something'))): ops=3, names=7
+atomic: ('cl:comment' 'B100%'): ops=0, names=2
+atomic: ('A1:"A_comment_inside"' 'COMMENT:B100%'): ops=0, names=2
+Boolean: (iff (and ('B_100' 'B_101' '$100')) ('[TODAY]' '[4,5,6]' '[3+4]')): ops=2, names=6
+5 sentences
+atomic: ('FuncA' 'a' 100 25): ops=0, names=2
+Boolean: (and ('B' 'C') (or ('C' 'D')) (or ('FuncB') ('Func' 100 'A') ('something'))): ops=3, names=7
+atomic: ('cl:comment' 'B100%'): ops=0, names=2
+atomic: ('A1:"A_comment_inside"' 'COMMENT:B100%'): ops=0, names=2
+Boolean: (iff (and ('B_100' 'B_101' '$100')) ('[TODAY]' '[4,5,6]' '[3+4]')): ops=2, names=6

@@ -28,13 +28,14 @@ class ClifLexer():
 
 	# CONSTRUCTOR
 	def __init__(self):
-		print('Lexer constructor called.')
+		# print('Lexer constructor called.')
 		self.lexer = lex.lex(module=self)
 		self.lexer.begin('INITIAL')
 
 	# DESTRUCTOR
 	def __del__(self):
-		print('Lexer destructor called.')
+		pass
+		# print('Lexer destructor called.')
 
 	reserved_bool = {
 		'and' : 'AND',
@@ -73,7 +74,7 @@ class ClifLexer():
 
 	digit = r'([0-9])'
 	numeral = r'(' + digit + r')+'
-	character = r'(' + digit + r'|[^0-9\)\(\'\"])' # gross - currently necessary because t_CHAR has higher priority than other rules
+	character = r'(' + digit + r'|[^0-9\)\(\'\"])' # exclude OPEN, CLOSE, STRINGQUOTE, and NAMEQUOTE
 
 	stringquote = r'\''
 	namequote = r'\"'
@@ -86,10 +87,9 @@ class ClifLexer():
 
 	# token specification as a regular expression
 
-	# t_DIGIT= r'([0-9])'
-	def t_DIGIT(self, t):
-		r'\b\d\b'
-		return t
+	t_DIGIT= r'([0-9])'
+
+	# token specification as a function
 
 	def t_RESERVEDELEMENT(self, t):
 		r'[a-zA-Z]+(?::[a-zA-Z]+)*'
@@ -101,8 +101,6 @@ class ClifLexer():
 
 	@TOKEN(quotedstring)
 	def t_QUOTEDSTRING(self, t):
-		# This is not yet correct: you need to complete the lexing of quotedstring
-		#r'\''
 		return t
 
 	@TOKEN(numeral)
@@ -121,6 +119,7 @@ class ClifLexer():
 	def t_NAMEQUOTE(self, t):
 		return t
 
+	# updated version in main.py for writing to file
 	def lex(self, input_string):
 		self.lexer.input(input_string)
 		list_of_str = []
@@ -132,6 +131,20 @@ class ClifLexer():
 			list_of_str.append(str(tok) + '\n')
 		return(list_of_str)
 
+# method to turn a tuple into a string of its elements
+def stringifyTuple(tup):
+	# don't do anything if it's not a tuple
+	if (isinstance(tup, tuple)):
+		tupString = ""
+		for i in range (0, len(tup)):
+			if(tup[i] == ')' or tup[i-1] == "(" or tup[i] == " "):
+				tupString = tupString + str(tup[i])
+			else:
+				tupString = tupString + " " + str(tup[i])
+		return tupString.strip()
+	else:
+		return tup
+
 """
 PARSER
 """
@@ -142,32 +155,142 @@ class ClifParser(object):
 
 	# CONSTRUCTOR
 	def __init__(self):
-		print('Parser constructor called.')
+		# print('Parser constructor called.')
 		self.lexer = ClifLexer()
 		self.parser = yacc.yacc(module=self)
+		self.is_atomic = False
+		self.is_bool = False
+		self.ops = 0
+		self.names = {}
 
+	start = 'starter'
 
 	def p_starter(self, p):
 		"""
 		starter : sentence
 				| sentence starter
 		"""
-		print("Starting the parsing process.")
-		pass
+		# print("Starting the parsing process.")
 
-	def p_sentence(self, p):
+	def p_sentence_atom(self, p):
 		"""
-		sentence : OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
+		sentence : atomsent
 		"""
-		# note that the rule above is INCORRECT: it is just an example of how to specify a rule
-		'sentence : OPEN QUOTEDSTRING CLOSE'
-		print("Found a sentence: {} {} {} ".format(p[2], p[3], p[4]))
-		if p[3] == p[4]:
-			no_quotedstrings = 1
+
+		p[0] = stringifyTuple(p[1])
+
+		# print("Found a sentence: {}".format(p[0]))
+		self.is_atomic = True
+		self.is_bool = False
+
+
+	def p_sentence_bool(self, p):
+		"""
+		sentence : boolsent
+		"""
+
+		p[0] = stringifyTuple(p[1])
+
+		# print("Found a sentence: {}".format(p[0]))
+		self.is_atomic = False
+		self.is_bool = True
+
+	# special sentence case for multiple occurrences of sentence
+	# only used with and/or boolsent
+	def p_multisent(self, p):
+		"""
+		multisent : sentence
+				  | sentence multisent
+				  | empty
+		"""
+
+		if(p[1] != None):
+			if(len(p) == 2):
+				p[0] = p[1]
+			elif(len(p) == 3):
+				p[0] = "{} {}".format(p[1], p[2])
 		else:
-			no_quotedstrings = 2
+			p[0] = p[1]
+			
 
-		print("Number of distinct quoted strings: " + str(no_quotedstrings))
+	def p_atomsent(self, p):
+		'''
+		atomsent : OPEN predicate termseq CLOSE
+		'''
+
+		# don't return termseq if it's empty
+		if (p[3] == None):
+			p[0] = (p[1], p[2], p[4])
+		else:
+			p[0] = (p[1], p[2], p[3], p[4])
+
+	def p_predicate(self, p):
+		'''
+		predicate : interpretedname
+		'''
+		p[0] = p[1]
+
+	def p_termseq(self, p):
+		'''
+		termseq : interpretedname
+				| interpretedname termseq
+				| empty
+		'''
+
+		# TODO fix this conditional, the logic is weird (if if -> same result as "else")
+		# return termseq as a format string if it's a sequence of two or more terms
+		if(p[1] != None):
+			if(len(p) == 2):
+				p[0] = p[1]
+			elif(len(p) == 3):
+				p[0] = "{} {}".format(p[1], p[2])
+		else:
+			p[0] = p[1]
+
+	def p_interpretedname(self, p):
+		"""
+		interpretedname : NUMERAL
+						| QUOTEDSTRING
+		"""
+		p[0] = p[1]
+		if p[1][0] == ("'" or "\""): # lol there's gotta be a better way of recognizing a quotedstring, this way a quick way off the top of my head
+			self.names[p[1]] = p[1]
+
+	def p_boolsent_and(self, p):
+		'''
+		boolsent : OPEN AND multisent CLOSE
+		'''
+		p[0] = stringifyTuple((p[1], 'AND', p[3], p[4]))
+		self.ops += 1
+
+	def p_boolsent_or(self, p):
+		'''
+		boolsent : OPEN OR multisent CLOSE
+		'''
+		p[0] = stringifyTuple((p[1], 'OR', p[3], p[4]))
+		self.ops += 1
+
+	# covers both IF and IFF
+	def p_boolsent_if(self, p):
+		'''
+		boolsent : OPEN IF sentence sentence CLOSE
+				 | OPEN IFF sentence sentence CLOSE
+		'''
+		p[0] = stringifyTuple((p[1], p[2], p[3], p[4], p[5]))
+		self.ops += 1
+
+
+	def p_boolsent_not(self, p):
+		'''
+		boolsent : OPEN NOT sentence CLOSE
+		'''
+		p[0] = stringifyTuple((p[1], 'NOT', p[3], p[4]))
+		self.ops += 1
+
+	# empty production rule to support rules with repetition
+	def p_empty(self, p):
+		'empty :'
+		pass
 
 	def p_error(self, p):
 
@@ -188,6 +311,15 @@ class ClifParser(object):
 		# parser = yacc.yacc(module=self)
 
 		self.parser.parse(input_string)
+		print(self.get_output(input_string))
+
+	def get_output(self, input_string):
+		if self.is_atomic:
+			atom_str = "atomic: {}: ops={}, names={}".format(input_string.strip(), self.ops, len(self.names))
+			return atom_str
+		elif self.is_bool:
+			bool_str = "Boolean: {}: ops={}, names={}".format(input_string.strip(), self.ops, len(self.names))
+			return bool_str
 
 """
 HARD-CODED TESTS
@@ -233,11 +365,10 @@ Preconditon: lexer_parser is a Boolean
 """
 
 def main(file, lexer_parser):
-	# TODO: remove set boolean value from lexer_parser arg
 	lex = ClifLexer()
 
 	if lexer_parser == "False":
-		with open(file, 'r') as clif_file, open("q1_results.txt", "w") as lexer_results:
+		with open(file, 'r') as clif_file, open("lexer_results.txt", "a") as lexer_results:
 			lines = clif_file.readlines()
 			for line in lines:
 				lex_lines = lex.lex(line)
@@ -248,8 +379,26 @@ def main(file, lexer_parser):
 
 			lexer_results.close()
 	elif lexer_parser == "True":
-		pass
+		with open(file, 'r') as clif_file, open("lexer_results.txt", "a") as lexer_results,  open("parser_results.txt", "a") as parser_results:
+			lines = clif_file.readlines()
+
+			num_sentences = str(len(lines)) + " sentences\n"
+			print(num_sentences)    
+			parser_results.write(num_sentences)
+			for line in lines:
+				parser = ClifParser()
+
+				lex_lines = lex.lex(line)
+				
+				result = parser.parse(line)
+				parser_results.write(parser.get_output(line) + "\n")
+
+				lexer_results.write('\n\nLexing ' + line)				
+				for lex_token in lex_lines: 
+					lexer_results.write(lex_token)
+
+			lexer_results.close()	
 	else:
 		print("Error.")
 
-main(sys.argv[1], sys.argv[2])	# TODO: modify this and main() to include the boolean arg
+main(sys.argv[1], sys.argv[2])

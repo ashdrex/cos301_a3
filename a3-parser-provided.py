@@ -55,7 +55,7 @@ class ClifLexer():
 
 	digit = r'([0-9])'
 	numeral = r'(' + digit + r')+'
-	character = r'(' + digit + r'|[^0-9\)\(\'\"])' # gross - currently necessary because t_CHAR has higher priority than other rules
+	character = r'(' + digit + r'|[^0-9\)\(\'\"])' # exclude OPEN, CLOSE, STRINGQUOTE, and NAMEQUOTE
 
 	stringquote = r'\''
 	namequote = r'\"'
@@ -68,11 +68,9 @@ class ClifLexer():
 
 	# token specification as a regular expression
 
-	# the digit token is recognized, but... numbers will always get tagged as numerals because they're one or more digits
-	# should numerals be two or more digits?
 	t_DIGIT= r'([0-9])'
-	#t_NUMERAL=
 
+	# token specification as a function
 
 	def t_RESERVEDELEMENT(self, t):
 		r'[a-zA-Z]+(?::[a-zA-Z]+)*'
@@ -84,8 +82,6 @@ class ClifLexer():
 
 	@TOKEN(quotedstring)
 	def t_QUOTEDSTRING(self, t):
-		# This is not yet correct: you need to complete the lexing of quotedstring
-		#r'\''
 		return t
 
 	@TOKEN(numeral)
@@ -153,26 +149,6 @@ class ClifParser(object):
 		"""
 		# print("Starting the parsing process.")
 
-	# def p_sentence(self, p): # TODO add boolsent once it's defined
-	# 	"""
-	# 	sentence : OPEN AND QUOTEDSTRING QUOTEDSTRING CLOSE
-	# 	"""
-	# 	# should actually be: sentence : atomsent
-	# 	#							   | boolsent
-
-	# 	# **rm note that the rule above is INCORRECT: it is just an example of how to specify a rule
-	# 	#'sentence : OPEN QUOTEDSTRING CLOSE'
-	# 	print("???")
-	# 	print("Found a sentence: {} {} {} ".format(p[2], p[3], p[4]))
-	# 	if p[3] == p[4]:
-	# 		no_quotedstrings = 1
-	# 	else:
-	# 		no_quotedstrings = 2
-
-	# 	print("Number of distinct quoted strings: " + str(no_quotedstrings))
-
-	# is a sentence a whole unit with parentheses and some inner content? may need to update print statements to reflect that
-
 	def p_sentence_atom(self, p):
 		"""
 		sentence : atomsent
@@ -204,7 +180,6 @@ class ClifParser(object):
 				  | sentence multisent
 				  | empty
 		"""
-		#p[0] = p[1:]
 
 		if(p[1] != None):
 			if(len(p) == 2):
@@ -241,7 +216,6 @@ class ClifParser(object):
 
 		# TODO fix this conditional, the logic is weird (if if -> same result as "else")
 		# return termseq as a format string if it's a sequence of two or more terms
-		# maybe not ideal behavior - review later
 		if(p[1] != None):
 			if(len(p) == 2):
 				p[0] = p[1]
@@ -249,9 +223,8 @@ class ClifParser(object):
 				p[0] = "{} {}".format(p[1], p[2])
 		else:
 			p[0] = p[1]
-		#print("termseq is " + p[0])
 
-	def p_interpretedname(self, p): #neither of these are actually terminals... hmm
+	def p_interpretedname(self, p):
 		"""
 		interpretedname : NUMERAL
 						| QUOTEDSTRING
@@ -291,8 +264,7 @@ class ClifParser(object):
 		p[0] = stringifyTuple((p[1], 'NOT', p[3], p[4]))
 		self.ops += 1
 
-	# experimental empty production rule
-	# reduce/reduce conflict with termseq - > interpretedname.... but I don't know why
+	# empty production rule to support rules with repetition
 	def p_empty(self, p):
 		'empty :'
 		pass
@@ -361,8 +333,6 @@ HARD-CODED TESTS
 # for s in arr:
 # 	parser = ClifParser()
 # 	result = parser.parse(s)
-
-# temporarily commented out so it's not running too many tests
 
 """
 MAIN FUNCTION
