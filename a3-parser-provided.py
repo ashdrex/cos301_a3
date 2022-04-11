@@ -360,9 +360,17 @@ HARD-CODED TESTS
 # print('\nParsing '+s)
 # result = parser.parse(s)
 
-# iff + if test
+# # iff + if test
+# parser = ClifParser()
+# s = "(iff ('min' 4 8 16 'maybe') (if ('yes') (and ('max' 1 2 15) ('words') ('foo'))))"
+# print('\nLexing '+s)
+# parser.lexer.lex(s)
+# print('\nParsing '+s)
+# result = parser.parse(s)
+
+# test from the clif file
 parser = ClifParser()
-s = "(iff ('min' 4 8 16 'maybe') (if ('yes') (and ('max' 1 2 15) ('words') ('foo'))))"
+s = "(if (not ('True')) (and (0 '=' 1) (0 '=' 2) (not ('FalseStatement3'))))"
 print('\nLexing '+s)
 parser.lexer.lex(s)
 print('\nParsing '+s)
