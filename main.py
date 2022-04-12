@@ -308,7 +308,7 @@ class ClifParser(object):
 		p[0] = stringifyTuple((p[1], 'NOT', p[3], p[4]))
 		self.ops += 1
 
-		self.elements.append("ParsedElement(TYPE: boolsent, VALUE: {}).format(p[0])")
+		self.elements.append("ParsedElement(TYPE: boolsent, VALUE: {})".format(p[0]))
 
 	# empty production rule to support rules with repetition
 	def p_empty(self, p):
