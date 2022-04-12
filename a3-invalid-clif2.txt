@@ -1,0 +1,4 @@
+(not ('TODAY=03/26/22'))
+(and ('isTrue?' 'C'))
+(and (not 'True') ('FuncA' or 'Func B'))
+(cl:comment 'My comment is \'THIS\'' (and ('TODAY')))

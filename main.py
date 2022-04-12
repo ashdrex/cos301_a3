@@ -162,6 +162,7 @@ class ClifParser(object):
 		self.is_bool = False
 		self.ops = 0
 		self.names = {}
+		self.elements = []
 
 	start = 'starter'
 
@@ -183,6 +184,8 @@ class ClifParser(object):
 		self.is_atomic = True
 		self.is_bool = False
 
+		self.elements.append("ParsedElement(TYPE: sentence, VALUE: {})".format(p[0]))
+
 
 	def p_sentence_bool(self, p):
 		"""
@@ -194,6 +197,8 @@ class ClifParser(object):
 		# print("Found a sentence: {}".format(p[0]))
 		self.is_atomic = False
 		self.is_bool = True
+
+		self.elements.append("ParsedElement(TYPE: sentence, VALUE: {})".format(p[0]))
 
 	# special sentence case for multiple occurrences of sentence
 	# only used with and/or boolsent
@@ -211,6 +216,8 @@ class ClifParser(object):
 				p[0] = "{} {}".format(p[1], p[2])
 		else:
 			p[0] = p[1]
+
+		self.elements.append("ParsedElement(TYPE: sentence, VALUE: {})".format(p[0]))
 			
 
 	def p_atomsent(self, p):
@@ -220,15 +227,19 @@ class ClifParser(object):
 
 		# don't return termseq if it's empty
 		if (p[3] == None):
-			p[0] = (p[1], p[2], p[4])
+			p[0] = stringifyTuple((p[1], p[2], p[4]))
 		else:
-			p[0] = (p[1], p[2], p[3], p[4])
+			p[0] = stringifyTuple((p[1], p[2], p[3], p[4]))
+
+		self.elements.append("ParsedElement(TYPE: atomsent, VALUE: {})".format(p[0]))
 
 	def p_predicate(self, p):
 		'''
 		predicate : interpretedname
 		'''
 		p[0] = p[1]
+
+		self.elements.append("ParsedElement(TYPE: predicate, VALUE: {})".format(p[0]))
 
 	def p_termseq(self, p):
 		'''
@@ -237,7 +248,6 @@ class ClifParser(object):
 				| empty
 		'''
 
-		# TODO fix this conditional, the logic is weird (if if -> same result as "else")
 		# return termseq as a format string if it's a sequence of two or more terms
 		if(p[1] != None):
 			if(len(p) == 2):
@@ -247,6 +257,8 @@ class ClifParser(object):
 		else:
 			p[0] = p[1]
 
+		self.elements.append("ParsedElement(TYPE: termseq, VALUE: {})".format(p[0]))
+
 	def p_interpretedname(self, p):
 		"""
 		interpretedname : NUMERAL
@@ -255,6 +267,9 @@ class ClifParser(object):
 		p[0] = p[1]
 		if p[1][0] == ("'" or "\""): # lol there's gotta be a better way of recognizing a quotedstring, this way a quick way off the top of my head
 			self.names[p[1]] = p[1]
+			self.elements.append("ParsedElement(TYPE: quotedstring, VALUE: {})".format(p[0]))
+		else:
+			self.elements.append("ParsedElement(TYPE: numeral, VALUE: {})".format(p[0]))
 
 	def p_boolsent_and(self, p):
 		'''
@@ -263,12 +278,16 @@ class ClifParser(object):
 		p[0] = stringifyTuple((p[1], 'AND', p[3], p[4]))
 		self.ops += 1
 
+		self.elements.append("ParsedElement(TYPE: boolsent, VALUE: {})".format(p[0]))
+
 	def p_boolsent_or(self, p):
 		'''
 		boolsent : OPEN OR multisent CLOSE
 		'''
 		p[0] = stringifyTuple((p[1], 'OR', p[3], p[4]))
 		self.ops += 1
+
+		self.elements.append("ParsedElement(TYPE: boolsent, VALUE: {})".format(p[0]))
 
 	# covers both IF and IFF
 	def p_boolsent_if(self, p):
@@ -278,7 +297,8 @@ class ClifParser(object):
 		'''
 		p[0] = stringifyTuple((p[1], p[2], p[3], p[4], p[5]))
 		self.ops += 1
-
+		
+		self.elements.append("ParsedElement(TYPE: boolsent, VALUE: {})".format(p[0]))
 
 	def p_boolsent_not(self, p):
 		'''
@@ -286,6 +306,8 @@ class ClifParser(object):
 		'''
 		p[0] = stringifyTuple((p[1], 'NOT', p[3], p[4]))
 		self.ops += 1
+
+		self.elements.append("ParsedElement(TYPE: boolsent, VALUE: {}).format(p[0])")
 
 	# empty production rule to support rules with repetition
 	def p_empty(self, p):
@@ -295,7 +317,8 @@ class ClifParser(object):
 	def p_error(self, p):
 
 		if p is None:
-			print("Unexpectedly reached end of line input. Skipping...")
+			#print("Unexpectedly reached end of line input. Skipping...")
+			self.elements.append("Unexpectedly reached end of line input. Skipping...")
 		else:
 			# Note the location of the error before trying to lookahead
 			error_pos = p.lexpos
@@ -303,11 +326,15 @@ class ClifParser(object):
 			# Reading the symbols from the Parser stack
 			stack = [symbol for symbol in self.parser.symstack][1:]
 
-			print("Parsing error; current stack: " + str(stack))
+			#print("Parsing error; current stack: " + str(stack))
+			self.elements.append("Parsing error; current stack: " + str(stack))
 
 
 	def parse(self, input_string):
 		self.parser.parse(input_string)
+
+		for element in self.elements:
+			print(element)
 
 		if self.is_atomic:
 			atom_str = "atomic: {}: ops={}, names={}".format(input_string.strip(), self.ops, len(self.names))
@@ -331,6 +358,8 @@ def main(file, lexer_parser):
 	if lexer_parser == "False":
 		with open(file, 'r') as clif_file, open("results_file.txt", "a") as results_file:
 			lines = clif_file.readlines()
+
+			results_file.write("\n=== Lexing " + file + " ===\n")
 			for line in lines:
 				lex_lines = lex.lex(line)
 				results_file.write('\nLexing ' + line)
@@ -342,6 +371,8 @@ def main(file, lexer_parser):
 	elif lexer_parser == "True":
 		with open(file, 'r') as clif_file, open("results_file.txt", "a") as results_file:
 			lines = clif_file.readlines()
+
+			results_file.write("\n=== Lexing and parsing " + file + " ===\n")
 
 			num_sentences = 0
 			parsed_sentences = []
@@ -358,6 +389,11 @@ def main(file, lexer_parser):
 				results_file.write('\nLexing ' + line)				
 				for lex_token in lex_lines: 
 					results_file.write(lex_token)
+
+				#new
+				results_file.write('\nParsing ' + line)
+				for element in (parser.elements):
+					results_file.write(element + '\n')
 
 			results_file.write("\n\n{} sentences\n".format(num_sentences))
 			for sents in parsed_sentences:
