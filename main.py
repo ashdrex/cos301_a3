@@ -158,6 +158,7 @@ class ClifParser(object):
 		# print('Parser constructor called.')
 		self.lexer = ClifLexer()
 		self.parser = yacc.yacc(module=self)
+		self.is_valid = True
 		self.is_atomic = False
 		self.is_bool = False
 		self.ops = 0
@@ -329,6 +330,10 @@ class ClifParser(object):
 			#print("Parsing error; current stack: " + str(stack))
 			self.elements.append("Parsing error; current stack: " + str(stack))
 
+		# not a valid sentence
+		self.is_valid = False
+		exit
+
 
 	def parse(self, input_string):
 		self.parser.parse(input_string)
@@ -382,7 +387,7 @@ def main(file, lexer_parser):
 				lex_lines = lex.lex(line)
 				result = parser.parse(line)
 
-				if (result):
+				if (parser.is_valid == True):
 					parsed_sentences.append(result)
 					num_sentences += 1
 
